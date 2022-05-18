@@ -13,9 +13,7 @@ public class VKTelegramBotHandler
                                         Update update,
                                         CancellationToken cancellationToken)
     {
-        // Only process Message updates: https://core.telegram.org/bots/api#message
-        // And only process text messages
-        if (update.Type != UpdateType.Message || update.Message!.Type != MessageType.Text)
+        if (update.Message!.Type != MessageType.Text) // Only process text messages
         {
             return;
         }

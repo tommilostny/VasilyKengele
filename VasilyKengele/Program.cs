@@ -29,7 +29,7 @@ if (botClient is null)
 
 var botReceiverOptions = new ReceiverOptions
 {
-    AllowedUpdates = Array.Empty<UpdateType>() // receive all update types
+    AllowedUpdates = new[] { UpdateType.Message }
 };
 using var botCancellationTokenSource = new CancellationTokenSource();
 
