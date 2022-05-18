@@ -7,7 +7,7 @@ public static class Constants
 
     public const string StartCommand = "/start";
     public const string StopCommand = "/stop";
-    public const string UsersCountCommand = "/users-count";
+    public const string UsersCountCommand = "/users_count";
     public const string HelpCommand = "/help";
 
     public static IEnumerable<string> GetAllCommands()
