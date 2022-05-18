@@ -4,4 +4,4 @@ Knock-off version of the original Asili Kengele by **[@fpetru104](https://github
 
 Runs as a Telegram bot at: [t.me/vasilykengele_bot](t.me/vasilykengele_bot).
 
-![Vasily](vasily.jpg "Vasily Kengele photo")
+<img src="vasily.jpg" alt="Vasily Kengele photo" width="166"/>
