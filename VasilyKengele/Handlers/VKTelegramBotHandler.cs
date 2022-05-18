@@ -31,6 +31,9 @@ public class VKTelegramBotHandler
             case Constants.StopCommand:
                 await ExecuteStopCommandAsync(botClient, chatId, username, cancellationToken);
                 break;
+            case Constants.UsersCountCommand:
+                await ExecuteUsersCountCommandAsync(botClient, chatId, cancellationToken);
+                break;
             case Constants.HelpCommand:
             default:
                 await ExecuteHelpCommand(botClient, chatId, cancellationToken);
@@ -62,6 +65,15 @@ public class VKTelegramBotHandler
                 text: $"Goodbye, commrade {username}!\nVasily Kengele is sad to see you leave.",
                 cancellationToken: cancellationToken);
         }
+    }
+
+    private async Task ExecuteUsersCountCommandAsync(ITelegramBotClient botClient,
+                                                     long chatId,
+                                                     CancellationToken cancellationToken)
+    {
+        await botClient.SendTextMessageAsync(chatId,
+            text: $"Right now {_chatIdsRepository.GetAll().Count()} users are waking up with Vasily Kengele!",
+            cancellationToken: cancellationToken);
     }
 
     private static async Task ExecuteHelpCommand(ITelegramBotClient botClient,
