@@ -58,7 +58,7 @@ app.Services.UseScheduler(scheduler =>
 #endif
 });
 
-app.Run();
+app.Run("http://localhost:5234");
 
 // Send cancellation request to stop bot
 botCancellationTokenSource.Cancel();

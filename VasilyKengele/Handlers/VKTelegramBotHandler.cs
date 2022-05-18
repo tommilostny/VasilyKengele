@@ -43,10 +43,12 @@ public class VKTelegramBotHandler
                                                 string username,
                                                 CancellationToken cancellationToken)
     {
-        await _chatIdsRepository.AddAsync(chatId);
-        await botClient.SendTextMessageAsync(chatId,
-            text: $"Vasily Kengele welcomes you, commrade {username}!\nWake up with us at {Constants.UpdateHour} o'clock.",
-            cancellationToken: cancellationToken);
+        if (await _chatIdsRepository.AddAsync(chatId))
+        {
+            await botClient.SendTextMessageAsync(chatId,
+                text: $"Vasily Kengele welcomes you, commrade {username}!\nWake up with us at {Constants.UpdateHour} o'clock.",
+                cancellationToken: cancellationToken);
+        }
     }
 
     private async Task ExecuteStopCommandAsync(ITelegramBotClient botClient,
@@ -54,10 +56,12 @@ public class VKTelegramBotHandler
                                                string username,
                                                CancellationToken cancellationToken)
     {
-        await _chatIdsRepository.RemoveAsync(chatId);
-        await botClient.SendTextMessageAsync(chatId,
-            text: $"Goodbye, commrade {username}!\nVasily Kengele is sad to see you leave.",
-            cancellationToken: cancellationToken);
+        if (await _chatIdsRepository.RemoveAsync(chatId))
+        {
+            await botClient.SendTextMessageAsync(chatId,
+                text: $"Goodbye, commrade {username}!\nVasily Kengele is sad to see you leave.",
+                cancellationToken: cancellationToken);
+        }
     }
 
     private static async Task ExecuteHelpCommand(ITelegramBotClient botClient,
