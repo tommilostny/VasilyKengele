@@ -2,7 +2,7 @@
 
 public static class Constants
 {
-    public const int UpdateHour = 5;
+    public const int UpdateHour = 12;
     public const string TelegramBotToken = "TelegramBotToken";
     public const string TwitterApiKey = "TwitterApiKey";
     public const string TwitterApiSecret = "TwitterApiSecret";
