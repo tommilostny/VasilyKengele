@@ -11,9 +11,6 @@ global using Telegram.Bot.Extensions.Polling;
 global using Telegram.Bot.Types;
 global using Telegram.Bot.Types.Enums;
 
-global using Tweetinvi;
-global using Tweetinvi.Models;
-
 global using VasilyKengele;
 global using VasilyKengele.Entities;
 global using VasilyKengele.Handlers;
