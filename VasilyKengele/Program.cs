@@ -1,54 +1,47 @@
+// Configure services.
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
-
-builder.Services.AddSingleton(provider => new TelegramBotClient(builder.Configuration[Constants.BotToken]));
+builder.Services.AddSingleton<TelegramBotClient>(provider =>
+{
+    return new(builder.Configuration[Constants.TelegramBotToken]);
+});
 builder.Services.AddSingleton<VKTelegramBotHandler>();
-builder.Services.AddSingleton<VKTelegramChatIdsRepository>();
+builder.Services.AddSingleton<VKBotUsersRepository>();
 builder.Services.AddTransient<VKTelegramBotInvocable>();
 builder.Services.AddScheduler();
 
 // Build the ASP.NET Core application.
 var app = builder.Build();
 
+// Configure Telegram bot
 var botHandler = app.Services.GetService<VKTelegramBotHandler>();
 if (botHandler is null)
 {
     Console.Error.WriteLine($"Unable to create instance of {nameof(VKTelegramBotHandler)}.");
     return;
 }
-// Configure Telegram bot
 var botClient = app.Services.GetService<TelegramBotClient>();
 if (botClient is null)
 {
     Console.Error.WriteLine($"Unable to create instance of {nameof(TelegramBotClient)}.");
     return;
 }
-
 var botReceiverOptions = new ReceiverOptions
 {
     AllowedUpdates = new[] { UpdateType.Message }
 };
 using var botCancellationTokenSource = new CancellationTokenSource();
 
+// Start Telegram bot listening.
 botClient.StartReceiving(botHandler.HandleUpdateAsync,
                          botHandler.HandlePollingErrorAsync,
                          botReceiverOptions,
                          botCancellationTokenSource.Token
 );
 var me = await botClient.GetMeAsync();
-Console.WriteLine($"Start listening for @{me.Username}");
+Console.WriteLine($"Start of Telegram Bot listening for @{me.Username}");
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-//app.UseHttpsRedirection();
-
+// Schedule messages to go out at 5 AM CET.
 app.Services.UseScheduler(scheduler =>
 {
 #if DEBUG
@@ -58,6 +51,7 @@ app.Services.UseScheduler(scheduler =>
 #endif
 });
 
+// Start the app.
 app.Run("http://localhost:5234");
 
 // Send cancellation request to stop bot
