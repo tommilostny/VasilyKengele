@@ -47,7 +47,7 @@ public static class Constants
             { UsersCountCommand, "Returns number of users currently waking up with us." },
             { AboutMeCommand, "Get JSON data stored about you by this bot." },
             { DeleteMeCommand, "Removes your data from out repository." },
-            { TimeZoneSetCommand, $"Use this to tell Vasily your current time HOUR. He'll use it to calculate your timezone so your receive your wake up at your {Constants.UpdateHour} o'clock. (Message format current time of 2:00 PM is: '{Constants.TimeZoneSetCommand} 14')." },
+            { TimeZoneSetCommand, $"Use this to tell Vasily your current time HOUR. He'll use it to calculate your timezone so your receive your wake up at your {Constants.UpdateHour} o'clock. (Message format for current time of 2:00 PM is: '{Constants.TimeZoneSetCommand} 14')." },
             { HelpCommand, "Display this help." },
         };
     }
