@@ -189,9 +189,9 @@ public class VKTelegramBotHandler
     }
 
     private async Task ExecuteEmailSubscribeCommandAsync(ITelegramBotClient botClient,
-                                                                VKBotUserEntity user,
-                                                                string email,
-                                                                CancellationToken cancellationToken)
+                                                         VKBotUserEntity user,
+                                                         string email,
+                                                         CancellationToken cancellationToken)
     {
         if (_IsValidEmail())
         {
@@ -226,7 +226,9 @@ public class VKTelegramBotHandler
         }
     }
 
-    private async Task ExecuteEmailUnubscribeCommandAsync(ITelegramBotClient botClient, VKBotUserEntity user, CancellationToken cancellationToken)
+    private async Task ExecuteEmailUnubscribeCommandAsync(ITelegramBotClient botClient,
+                                                          VKBotUserEntity user,
+                                                          CancellationToken cancellationToken)
     {
         if (user.Email is not null)
         {
@@ -261,8 +263,8 @@ public class VKTelegramBotHandler
     }
 
     private async Task ExecuteDeleteMeCommandAsync(ITelegramBotClient botClient,
-                                               VKBotUserEntity user,
-                                               CancellationToken cancellationToken)
+                                                   VKBotUserEntity user,
+                                                   CancellationToken cancellationToken)
     {
         if (await _usersRepository.RemoveAsync(user))
         {
