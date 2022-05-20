@@ -18,6 +18,8 @@ public static class Constants
     public const string AboutMeCommand = "/about_me";
     public const string DeleteMeCommand = "/delete_me";
     public const string TimeZoneSetCommand = "/time_set";
+    public const string EmailSubscribeCommand = "/email";
+    public const string EmailUnsubscribeCommand = "/email_delete";
     public const string HelpCommand = "/help";
 
     /// <summary>
@@ -31,6 +33,8 @@ public static class Constants
         yield return AboutMeCommand;
         yield return DeleteMeCommand;
         yield return UsersCountCommand;
+        yield return EmailSubscribeCommand;
+        yield return EmailUnsubscribeCommand;
         yield return HelpCommand;
     }
 
@@ -45,7 +49,9 @@ public static class Constants
         { UsersCountCommand, "Returns number of users currently waking up with us." },
         { AboutMeCommand, "Get JSON data stored about you by this bot." },
         { DeleteMeCommand, "Removes your data from out repository." },
-        { TimeZoneSetCommand, $"Use this to tell Vasily your current time HOUR. He'll use it to calculate your timezone so your receive your wake up at your {Constants.UpdateHour} o'clock. (Message format for current time of 2:00 PM is: '{Constants.TimeZoneSetCommand} 14')." },
+        { TimeZoneSetCommand, $"Use this to tell Vasily your current time <b>HOUR</b>. He'll use it to calculate your timezone so your receive your wake up at your correct {Constants.UpdateHour} o'clock time. (Message format for current time of 2:00 PM is: <code>{Constants.TimeZoneSetCommand} 14</code>)." },
+        { EmailSubscribeCommand, $"Subscribe to the e-mail wake up notifications as well. Message format: <code>{EmailSubscribeCommand} person@email.com</code>." },
+        { EmailUnsubscribeCommand, "Remove your email from wake up notifications." },
         { HelpCommand, "Display this help." },
     });
 }

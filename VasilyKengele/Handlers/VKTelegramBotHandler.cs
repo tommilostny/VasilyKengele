@@ -7,6 +7,10 @@ public class VKTelegramBotHandler
 {
     private readonly VKBotUsersRepository _usersRepository;
 
+    /// <summary>
+    /// Initializes <see cref="VKTelegramBotHandler"/> with user entities repository.
+    /// </summary>
+    /// <param name="usersRepository"><seealso cref="VKBotUsersRepository"/>.</param>
     public VKTelegramBotHandler(VKBotUsersRepository usersRepository)
     {
         _usersRepository = usersRepository;
@@ -51,8 +55,12 @@ public class VKTelegramBotHandler
             case Constants.HelpCommand:
                 await ExecuteHelpCommand(botClient, user, cancellationToken);
                 break;
+            case Constants.EmailUnsubscribeCommand:
+                await ExecuteEmailUnubscribeCommandAsync(botClient, user, cancellationToken);
+                break;
+
             case var timeCommandStr when timeCommandStr.StartsWith(Constants.TimeZoneSetCommand):
-                var hourStr = timeCommandStr.Split(' ').Last();
+                var hourStr = timeCommandStr.Trim().Split(' ').Last();
                 if (userExists)
                 {
                     await ExecuteTimeZoneUpdateCommandAsync(botClient, user, hourStr, cancellationToken);
@@ -60,6 +68,17 @@ public class VKTelegramBotHandler
                 }
                 await HandleUnknownUserAsync(botClient, user, cancellationToken);
                 break;
+
+            case var emailSubscribeStr when emailSubscribeStr.StartsWith(Constants.EmailSubscribeCommand):
+                var email = emailSubscribeStr.Trim().Split(' ').Last();
+                if (userExists)
+                {
+                    await ExecuteEmailSubscribeCommandAsync(botClient, user, email, cancellationToken);
+                    break;
+                }
+                await HandleUnknownUserAsync(botClient, user, cancellationToken);
+                break;
+
             default:
                 await HandleUnknownCommandAsync(botClient, user, cancellationToken);
                 break;
@@ -125,13 +144,14 @@ public class VKTelegramBotHandler
                                                  VKBotUserEntity user,
                                                  CancellationToken cancellationToken)
     {
-        var helpBuilder = new StringBuilder("Available commands:\n");
+        var helpBuilder = new StringBuilder("<b>Available commands</b>:\n");
         foreach (var command in Constants.GetAllCommands())
         {
             helpBuilder.AppendLine($"{command}: {Constants.HelpStrings[command]}");
         }
         await botClient.SendTextMessageAsync(user.ChatId,
             text: helpBuilder.ToString(),
+            parseMode: ParseMode.Html,
             cancellationToken: cancellationToken);
     }
 
@@ -163,7 +183,64 @@ public class VKTelegramBotHandler
                 return;
             }
         }
-        await HandleUnknownCommandAsync(botClient, user, cancellationToken);
+        await botClient.SendTextMessageAsync(user.ChatId,
+            text: $"{hourString} is not a valid hour. Check the message format example with /help.",
+            cancellationToken: cancellationToken);
+    }
+
+    private async Task ExecuteEmailSubscribeCommandAsync(ITelegramBotClient botClient,
+                                                                VKBotUserEntity user,
+                                                                string email,
+                                                                CancellationToken cancellationToken)
+    {
+        if (_IsValidEmail())
+        {
+            user.Email = email;
+            await _usersRepository.UpdateAsync(user);
+
+            await botClient.SendTextMessageAsync(user.ChatId,
+                text: $"Congratulations {user.Name}, you'll now receive e-mail wake up notifications at {email}.",
+                cancellationToken: cancellationToken);
+            return;
+        }
+        await botClient.SendTextMessageAsync(user.ChatId,
+            text: $"<b>{email}</b> is not a valid e-mail address. Check the message format example with /help.",
+            parseMode: ParseMode.Html,
+            cancellationToken: cancellationToken);
+
+        bool _IsValidEmail() // Inspired by https://stackoverflow.com/a/1374644.
+        {
+            if (email.EndsWith("."))
+            {
+                return false;
+            }
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+
+    private async Task ExecuteEmailUnubscribeCommandAsync(ITelegramBotClient botClient, VKBotUserEntity user, CancellationToken cancellationToken)
+    {
+        if (user.Email is not null)
+        {
+            user.Email = null;
+            await _usersRepository.UpdateAsync(user);
+
+            await botClient.SendTextMessageAsync(user.ChatId,
+                text: $"Your e-mail address has been removed and you'll no longer receive wake up notifications there.",
+                cancellationToken: cancellationToken);
+            return;
+        }
+        await botClient.SendTextMessageAsync(user.ChatId,
+            text: $"You're not receiving wake up notifications via e-mail.",
+            cancellationToken: cancellationToken);
     }
 
     private async Task ExecuteAboutMeCommandAsync(ITelegramBotClient botClient,
