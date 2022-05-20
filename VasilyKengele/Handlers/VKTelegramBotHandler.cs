@@ -1,5 +1,8 @@
 ﻿namespace VasilyKengele.Handlers;
 
+/// <summary>
+/// Class that handles Telegram bot messages.
+/// </summary>
 public class VKTelegramBotHandler
 {
     private readonly VKBotUsersRepository _usersRepository;
@@ -24,7 +27,7 @@ public class VKTelegramBotHandler
         }
         var chatId = update.Message.Chat.Id;
         var username = $"{update.Message.Chat.FirstName} {update.Message.Chat.LastName}";
-        (var user, _) = _usersRepository.Get(chatId, username);
+        (var user, var userExists) = _usersRepository.Get(chatId, username);
         
         Console.WriteLine($"Received a '{messageText}' message from {username} ({chatId}).");
 
@@ -50,7 +53,11 @@ public class VKTelegramBotHandler
                 break;
             case var timeCommandStr when timeCommandStr.StartsWith(Constants.TimeZoneSetCommand):
                 var hourStr = timeCommandStr.Split(' ').Last();
-                await ExecuteTimeZoneUpdateCommandAsync(botClient, user, hourStr, cancellationToken);
+                if (userExists)
+                {
+                    await ExecuteTimeZoneUpdateCommandAsync(botClient, user, hourStr, cancellationToken);
+                }
+                await HandleUnknownUserAsync(botClient, user, cancellationToken);
                 break;
             default:
                 await HandleUnknownCommandAsync(botClient, user, cancellationToken);
@@ -128,9 +135,9 @@ public class VKTelegramBotHandler
     }
 
     private async Task ExecuteTimeZoneUpdateCommandAsync(ITelegramBotClient botClient,
-                                                      VKBotUserEntity user,
-                                                      string hourString,
-                                                      CancellationToken cancellationToken)
+                                                         VKBotUserEntity user,
+                                                         string hourString,
+                                                         CancellationToken cancellationToken)
     {
         if (hourString.All(c => Char.IsDigit(c)))
         {
@@ -158,7 +165,9 @@ public class VKTelegramBotHandler
         await HandleUnknownCommandAsync(botClient, user, cancellationToken);
     }
 
-    private async Task ExecuteAboutMeCommandAsync(ITelegramBotClient botClient, VKBotUserEntity user, CancellationToken cancellationToken)
+    private async Task ExecuteAboutMeCommandAsync(ITelegramBotClient botClient,
+                                                  VKBotUserEntity user,
+                                                  CancellationToken cancellationToken)
     {
         (var stored, var exists) = _usersRepository.Get(user.ChatId, user.Name);
         if (exists)
@@ -191,6 +200,15 @@ public class VKTelegramBotHandler
     {
         await botClient.SendTextMessageAsync(user.ChatId,
             text: $"Vasily Kengele did not understand you!\nLearn available commands from /help.",
+            cancellationToken: cancellationToken);
+    }
+
+    private static async Task HandleUnknownUserAsync(ITelegramBotClient botClient,
+                                                     VKBotUserEntity user,
+                                                     CancellationToken cancellationToken)
+    {
+        await botClient.SendTextMessageAsync(user.ChatId,
+            text: $"Vasily Kengele does not recognize you.\nReactivate with /start.",
             cancellationToken: cancellationToken);
     }
 
