@@ -56,6 +56,7 @@ public class VKTelegramBotHandler
                 if (userExists)
                 {
                     await ExecuteTimeZoneUpdateCommandAsync(botClient, user, hourStr, cancellationToken);
+                    break;
                 }
                 await HandleUnknownUserAsync(botClient, user, cancellationToken);
                 break;
