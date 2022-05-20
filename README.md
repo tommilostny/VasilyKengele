@@ -8,7 +8,7 @@ Runs as a Telegram bot at: [t.me/vasilykengele_bot](t.me/vasilykengele_bot).
 
 ### Installation
 1. Install .NET 6.0 with ASP.NET Core 6.0 to use ``dotnet`` CLI.
-1. Set the Telegram bot token in [appsettings.json](VasilyKengele/appsettings.json)
+1. Set the Telegram bot token in [appsettings.json](VasilyKengele/appsettings.json).
 1. Build and run in *Release* mode (bot then sends wake up messages at 5 AM):
     - ``dotnet publish --configuration Release``
     - ``dotnet bin/Release/net6.0/publish/VasilyKengele.dll``
