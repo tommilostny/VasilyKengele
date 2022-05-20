@@ -1,14 +1,17 @@
 ﻿namespace VasilyKengele;
 
+/// <summary>
+/// Static class that contains constants used throughout the application.
+/// </summary>
 public static class Constants
 {
+    /// Wake up hour.
     public const int UpdateHour = 5;
-    public const string TelegramBotToken = "TelegramBotToken";
-    public const string TwitterApiKey = "TwitterApiKey";
-    public const string TwitterApiSecret = "TwitterApiSecret";
-    public const string TwitterAccessToken = "TwitterAccessToken";
-    public const string TwitterAccessTokenSecret = "TwitterAccessTokenSecret";
 
+    // Key in appsettings.json where the Telegram Bot API token is stored.
+    public const string TelegramBotToken = "TelegramBotToken";
+
+    // Available commands.
     public const string StartCommand = "/start";
     public const string StopCommand = "/stop";
     public const string UsersCountCommand = "/users_count";
@@ -17,6 +20,9 @@ public static class Constants
     public const string TimeZoneSetCommand = "/time_set";
     public const string HelpCommand = "/help";
 
+    /// <summary>
+    /// Iterates through all available bot commands.
+    /// </summary>
     public static IEnumerable<string> GetAllCommands()
     {
         yield return StartCommand;
@@ -28,6 +34,10 @@ public static class Constants
         yield return HelpCommand;
     }
 
+    /// <summary>
+    /// Stores help strings for all available commands
+    /// (accessible with ["command"]).
+    /// </summary>
     public static Dictionary<string, string> HelpStrings
     {
         get => new()
