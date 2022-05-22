@@ -32,7 +32,7 @@ public class VKTelegramBotHandler
         var chatId = update.Message.Chat.Id;
         var username = update.Message.Chat.Username;
         var fullname = $"{update.Message.Chat.FirstName} {update.Message.Chat.LastName}";
-        (var user, var userExists) = _usersRepository.Get(chatId, fullname, username);
+        (var user, var userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
         
         Console.WriteLine($"Received a '{messageText}' message from {fullname} ({username}, {chatId}).");
 
@@ -261,7 +261,7 @@ public class VKTelegramBotHandler
                                                   VKBotUserEntity user,
                                                   CancellationToken cancellationToken)
     {
-        (var stored, var exists) = _usersRepository.Get(user.ChatId, user.Name, user.Username);
+        (var stored, var exists) = await _usersRepository.GetAsync(user.ChatId, user.Name, user.Username);
         if (exists)
         {
             await botClient.SendTextMessageAsync(user.ChatId,
@@ -278,7 +278,7 @@ public class VKTelegramBotHandler
                                                    VKBotUserEntity user,
                                                    CancellationToken cancellationToken)
     {
-        if (await _usersRepository.RemoveAsync(user))
+        if (await _usersRepository.RemoveAsync(user.ChatId))
         {
             await botClient.SendTextMessageAsync(user.ChatId,
                 text: $"Goodbye, commrade {user.Name}!\nVasily Kengele is sad to see you leave.",

@@ -41,9 +41,14 @@ public class VKBotUsersRepository
     /// <param name="user">User entity to store.</param>
     public async Task AddAsync(VKBotUserEntity user)
     {
-        if (_usersCollection.Contains(user))
+        var existingUser = _usersCollection.SingleOrDefault(u => u.ChatId == user.ChatId);
+        if (existingUser is not null && existingUser != user)
         {
-            return;
+            user.UtcDifference = existingUser.UtcDifference;
+            user.TimeZoneSet = existingUser.TimeZoneSet;
+            user.ReceiveWakeUps = existingUser.ReceiveWakeUps;
+            user.Email = existingUser.Email;
+            _usersCollection.Remove(existingUser);
         }
         _usersCollection.Add(user);
         await SaveJsonAsync();
@@ -52,11 +57,16 @@ public class VKBotUsersRepository
     /// <summary>
     /// Removes given user entity from the repository.
     /// </summary>
-    /// <param name="user">User entity to delete.</param>
+    /// <param name="chatId">Chat ID of the user entity to delete.</param>
     /// <returns>true if user was removed successfully, otherwise false.</returns>
-    public async Task<bool> RemoveAsync(VKBotUserEntity user)
+    public async Task<bool> RemoveAsync(long chatId)
     {
-        var result = _usersCollection.Remove(user);
+        var existingUser = _usersCollection.SingleOrDefault(u => u.ChatId == chatId);
+        if (existingUser is null)
+        {
+            return false;
+        }
+        var result = _usersCollection.Remove(existingUser);
         await SaveJsonAsync();
         return result;
     }
@@ -68,7 +78,7 @@ public class VKBotUsersRepository
     /// <param name="user">User entity to update.</param>
     public async Task UpdateAsync(VKBotUserEntity user)
     {
-        var existingUser = _usersCollection.SingleOrDefault(existing => existing.ChatId == user.ChatId);
+        var existingUser = _usersCollection.SingleOrDefault(u => u.ChatId == user.ChatId);
         if (existingUser is null)
         {
             return;
@@ -91,20 +101,38 @@ public class VKBotUsersRepository
     /// </summary>
     /// <param name="chatId"><seealso cref="VKBotUserEntity.ChatId"/></param>
     /// <param name="fullname"><seealso cref="VKBotUserEntity.Name"/></param>
+    /// <param name="username"><seealso cref="VKBotUserEntity.Username"/></param>
     /// <returns>
     /// Tuple that represents the user entity and its existence in the repository.
     /// If user entity is not already stored its existence is set to false and set to true otherwise.
     /// If it does not exists, new user entity is created with given chat ID and name.
     /// </returns>
-    public (VKBotUserEntity, bool) Get(long chatId, string fullname, string? username)
+    public async Task<(VKBotUserEntity, bool)> GetAsync(long chatId, string fullname, string? username)
     {
-        var stored = _usersCollection.SingleOrDefault(u => u.ChatId == chatId);
-        var exists = stored is not null;
-        if (exists && !string.IsNullOrWhiteSpace(stored!.Username))
+        var existingUser = _usersCollection.SingleOrDefault(u => u.ChatId == chatId);
+
+        if (existingUser is not null) // User exists in the collection.
         {
-            return (stored, true);
+            // Existing user matches one stored in the repository. Return it.
+            if (existingUser!.Name == fullname && existingUser.Username == username)
+            {
+                return (existingUser, true);
+            }
+            // Existing user doesn't match. Create a new updated copy, save and return it.
+            var user = new VKBotUserEntity(chatId, fullname, username ?? string.Empty)
+            {
+                UtcDifference = existingUser.UtcDifference,
+                TimeZoneSet = existingUser.TimeZoneSet,
+                ReceiveWakeUps = existingUser.ReceiveWakeUps,
+                Email = existingUser.Email
+            };
+            _usersCollection.Remove(existingUser);
+            _usersCollection.Add(user);
+            await SaveJsonAsync();
+            return (user, true);
         }
-        return (new(chatId, fullname, username ?? string.Empty), exists);
+        // User doesn't yet exist in the repository. Handle by outside command.
+        return (new(chatId, fullname, username ?? string.Empty), false);
     }
 
     /// <summary>
