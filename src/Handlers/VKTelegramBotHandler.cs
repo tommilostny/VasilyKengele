@@ -254,7 +254,7 @@ public class VKTelegramBotHandler
                                                   VKBotUserEntity user,
                                                   CancellationToken cancellationToken)
     {
-        (var stored, var exists) = _usersRepository.Get(user.ChatId, user.Name);
+        (var stored, var exists) = _usersRepository.Get(user.ChatId, user.Name, user.Username);
         if (exists)
         {
             await botClient.SendTextMessageAsync(user.ChatId,
