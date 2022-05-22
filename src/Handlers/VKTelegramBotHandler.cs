@@ -198,8 +198,12 @@ public class VKTelegramBotHandler
             user.Email = email;
             await _usersRepository.UpdateAsync(user);
 
+            var messageText = user.ReceiveWakeUps
+                ? $"Congratulations {user.Name}, you'll now also receive e-mail wake up notifications at {email}."
+                : $"Congratulations {user.Name}, your e-mail address {email} was stored in our repository.\nActivate with /start to actually receive the notifications.";
+
             await botClient.SendTextMessageAsync(user.ChatId,
-                text: $"Congratulations {user.Name}, you'll now receive e-mail wake up notifications at {email}.",
+                text: messageText,
                 cancellationToken: cancellationToken);
             return;
         }
@@ -210,7 +214,7 @@ public class VKTelegramBotHandler
 
         bool _IsValidEmail() // Inspired by https://stackoverflow.com/a/1374644.
         {
-            if (email.EndsWith("."))
+            if (email.EndsWith('.'))
             {
                 return false;
             }

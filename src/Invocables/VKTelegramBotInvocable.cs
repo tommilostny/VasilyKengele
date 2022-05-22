@@ -5,15 +5,15 @@
 /// </summary>
 public class VKTelegramBotInvocable : IInvocable
 {
-    private readonly string _botToken;
+    private readonly TelegramBotClient _botClient;
     private readonly VKBotUsersRepository _usersRepository;
 
     /// <summary>
     /// Loads the Telegram bot token and stores a reference to the users repository.
     /// </summary>
-    public VKTelegramBotInvocable(IConfiguration configuration, VKBotUsersRepository usersRepository)
+    public VKTelegramBotInvocable(TelegramBotClient botClient, VKBotUsersRepository usersRepository)
     {
-        _botToken = configuration[Constants.TelegramBotToken];
+        _botClient = botClient;
         _usersRepository = usersRepository;
     }
 
@@ -23,23 +23,23 @@ public class VKTelegramBotInvocable : IInvocable
     /// </summary>
     public async Task Invoke()
     {
-        var now = DateTime.UtcNow;
-        var botClient = new TelegramBotClient(_botToken);
-
+        var utcNow = DateTime.UtcNow;
         foreach (var user in _usersRepository.GetAll())
         {
-            if (user.Email is not null)
-            {
-                //Send email
-            }
             if (!user.ReceiveWakeUps)
             {
                 continue;
             }
-            var userTime = now.AddHours(user.UtcDifference);
+            var userTime = utcNow.AddHours(user.UtcDifference);
+#if !DEBUG
             if (userTime.Hour == Constants.UpdateHour)
+#endif
             {
-                var message = await botClient.SendTextMessageAsync(user.ChatId, $"Hey {user.Name}, it's {userTime}. Time to wake up!");
+                if (user.Email is not null)
+                {
+                    //Send email
+                }
+                var message = await _botClient.SendTextMessageAsync(user.ChatId, $"Hey {user.Name}, it's {userTime}. Time to wake up!");
                 Console.WriteLine($"Sent '{message.Text}' to: {message.Chat.Id}");
             }
         }

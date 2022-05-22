@@ -7,7 +7,7 @@ public class VKBotUsersRepository
 {
     private const string _usersJsonFile = "users.json";
 
-    private readonly ICollection<VKBotUserEntity> _usersCollection;
+    private readonly IList<VKBotUserEntity> _usersCollection;
 
     /// <summary>
     /// Tries to load user entities collection serialized in the JSON file.
@@ -75,12 +75,9 @@ public class VKBotUsersRepository
     /// <summary>
     /// Iterates over the user entities stored in the repository.
     /// </summary>
-    public IEnumerable<VKBotUserEntity> GetAll()
+    public IReadOnlyCollection<VKBotUserEntity> GetAll()
     {
-        foreach (var user in _usersCollection)
-        {
-            yield return user;
-        }
+        return new ReadOnlyCollection<VKBotUserEntity>(_usersCollection);
     }
 
     /// <summary>

@@ -51,7 +51,7 @@ public static class Constants
         { DeleteMeCommand, "Removes your data from out repository." },
         { TimeZoneSetCommand, $"Use this to tell Vasily your current time <b>HOUR</b>. He'll use it to calculate your timezone so your receive your wake up at your correct {Constants.UpdateHour} o'clock time. (Message format for current time of 2:00 PM is: <code>{Constants.TimeZoneSetCommand} 14</code>)." },
         { EmailSubscribeCommand, $"Subscribe to the e-mail wake up notifications as well. Message format: <code>{EmailSubscribeCommand} person@email.com</code>." },
-        { EmailUnsubscribeCommand, "Remove your email from wake up notifications." },
+        { EmailUnsubscribeCommand, "Remove your email from our repository." },
         { HelpCommand, "Display this help." },
     });
 }
