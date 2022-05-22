@@ -28,6 +28,10 @@ public class VKTelegramBotInvocable : IInvocable
 
         foreach (var user in _usersRepository.GetAll())
         {
+            if (user.Email is not null)
+            {
+                //Send email
+            }
             if (!user.ReceiveWakeUps)
             {
                 continue;
