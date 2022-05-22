@@ -17,7 +17,7 @@ public static class Constants
     public const string UsersCountCommand = "/users_count";
     public const string AboutMeCommand = "/about_me";
     public const string DeleteMeCommand = "/delete_me";
-    public const string TimeZoneSetCommand = "/time_set";
+    public const string TimeZoneSetCommand = "/time";
     public const string EmailSubscribeCommand = "/email";
     public const string EmailUnsubscribeCommand = "/email_delete";
     public const string HelpCommand = "/help";

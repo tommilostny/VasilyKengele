@@ -134,10 +134,16 @@ public class VKTelegramBotHandler
                                                      VKBotUserEntity user,
                                                      CancellationToken cancellationToken)
     {
-        var count = _usersRepository.GetAll().Count(u => u.ReceiveWakeUps);
+        var users = _usersRepository.GetAll();
+        var wakingUp = users.Count(u => u.ReceiveWakeUps);
+        var notWakingUp = users.Count(u => !u.ReceiveWakeUps);
+
+        var messageBuilder = new StringBuilder($"Right now {wakingUp} users are waking up with Vasily Kengele!")
+            .AppendLine()
+            .AppendLine($"And {notWakingUp} registered users are not waking up with us.");
 
         await botClient.SendTextMessageAsync(user.ChatId,
-            text: $"Right now {count} users are waking up with Vasily Kengele!",
+            text: messageBuilder.ToString(),
             cancellationToken: cancellationToken);
     }
 
