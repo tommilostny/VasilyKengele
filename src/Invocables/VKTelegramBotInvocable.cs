@@ -35,12 +35,16 @@ public class VKTelegramBotInvocable : IInvocable
             if (userTime.Hour == Constants.UpdateHour)
 #endif
             {
+                var messageText = $"Hey {user.Name}, it's {userTime}. Time to wake up!";
+
+                var message = await _botClient.SendTextMessageAsync(user.ChatId, messageText);
+                Console.WriteLine($"Sent '{message.Text}' to: {message.Chat.Id}");
+                
                 if (user.Email is not null)
                 {
                     //Send email
+                    Console.WriteLine($"Sent e-mail '{messageText}' to: {user.Email}");
                 }
-                var message = await _botClient.SendTextMessageAsync(user.ChatId, $"Hey {user.Name}, it's {userTime}. Time to wake up!");
-                Console.WriteLine($"Sent '{message.Text}' to: {message.Chat.Id}");
             }
         }
     }

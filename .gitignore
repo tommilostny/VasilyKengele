@@ -350,3 +350,4 @@ MigrationBackup/
 .ionide/
 
 users.json
+users.json.gz

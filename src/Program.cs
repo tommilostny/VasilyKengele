@@ -41,7 +41,7 @@ botClient.StartReceiving(botHandler.HandleUpdateAsync,
 var me = await botClient.GetMeAsync();
 Console.WriteLine($"Start of Telegram Bot listening for @{me.Username}");
 
-// Schedule messages to go out at 5 AM CET.
+// Schedule messages to go out at 5:00 AM (based on users timezone).
 app.Services.UseScheduler(scheduler =>
 {
 #if DEBUG

@@ -5,19 +5,26 @@
 /// </summary>
 public class VKBotUsersRepository
 {
-    private const string _usersJsonFile = "users.json";
-
+    private const string _usersFileName = "users.json";
+    private const string _compressedFileName = $"{_usersFileName}.gz";
     private readonly IList<VKBotUserEntity> _usersCollection;
 
     /// <summary>
-    /// Tries to load user entities collection serialized in the JSON file.
+    /// Tries to load user entities collection serialized in the compressed JSON file.
     /// If it does not exist, the collection is initialized as empty and JSON file with empty list is created.
     /// </summary>
     public VKBotUsersRepository()
     {
-        if (System.IO.File.Exists(_usersJsonFile))
+        CheckForUncompressedJson();
+
+        if (System.IO.File.Exists(_compressedFileName))
         {
-            var jsonStr = System.IO.File.ReadAllText(_usersJsonFile);
+            using var compressedFileStream = System.IO.File.Open(_compressedFileName, FileMode.Open);
+            using var decompressor = new GZipStream(compressedFileStream, CompressionMode.Decompress);
+            using var memoryStream = new MemoryStream();
+            decompressor.CopyTo(memoryStream);
+
+            var jsonStr = Encoding.UTF8.GetString(memoryStream.GetBuffer());
             var stored = JsonConvert.DeserializeObject<List<VKBotUserEntity>>(jsonStr);
             if (stored is not null)
             {
@@ -26,7 +33,6 @@ public class VKBotUsersRepository
             }
         }
         _usersCollection = new List<VKBotUserEntity>();
-        System.IO.File.WriteAllText(_usersJsonFile, "[]");
     }
 
     /// <summary>
@@ -101,14 +107,35 @@ public class VKBotUsersRepository
     }
 
     /// <summary>
-    /// Serializes user entities collection and writes it to the JSON file.
+    /// Serializes user entities collection and writes it to the compressed JSON file.
     /// </summary>
     private async Task SaveJsonAsync()
     {
         var jsonStr = JsonConvert.SerializeObject(_usersCollection);
         if (jsonStr is not null)
         {
-            await System.IO.File.WriteAllTextAsync(_usersJsonFile, jsonStr);
+            using var compressedFileStream = System.IO.File.Create(_compressedFileName);
+            using var compressor = new GZipStream(compressedFileStream, CompressionMode.Compress);
+            
+            await compressor.WriteAsync(Encoding.UTF8.GetBytes(jsonStr));
         }
+    }
+
+    /// <summary>
+    /// Compress JSON file used in previous versions of Vasily Kengele and delete it.
+    /// </summary>
+    private static void CheckForUncompressedJson()
+    {
+        if (!System.IO.File.Exists(_usersFileName))
+        {
+            return;
+        }
+        var jsonBytes = System.IO.File.ReadAllBytes(_usersFileName);
+        using var compressedFileStream = System.IO.File.Create(_compressedFileName);
+        using var compressor = new GZipStream(compressedFileStream, CompressionMode.Compress);
+
+        compressor.Write(jsonBytes);
+
+        System.IO.File.Delete(_usersFileName);
     }
 }
