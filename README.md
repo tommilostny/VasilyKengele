@@ -23,12 +23,12 @@ Runs as a Telegram bot at: [t.me/vasilykengele_bot](t.me/vasilykengele_bot).
 - ``/about_me``: Get JSON data stored about you by this bot.
 - ``/delete_me``: Removes your data from out repository.
 - ``/users_count``: Returns number of users currently waking up with us.
-- ``/email: Subscribe`` to the e-mail wake up notifications as well. Message format: ``/email person@email.com``.
+- ``/email``: Subscribe to the e-mail wake up notifications as well. Message format: ``/email person@email.com``.
 - ``/email_delete``: Remove your email from wake up notifications.
 - ``/help``: Display help.
 
 ## Wake up daily with the bot
-After setup with ``/start`` and ``time_set`` commands, you'll receive notifications like this at 5 AM:
+After setup with ``/start`` and ``time_set`` commands, you'll receive Telegram notifications like this at 5 AM:
 
 <img src="img/telegram.jpg" alt="Telegram notifications example" width="400"/>
 
