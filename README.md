@@ -27,7 +27,9 @@ Runs as a Telegram bot at: [t.me/vasilykengele_bot](t.me/vasilykengele_bot).
 - ``/email_delete``: Remove your email from wake up notifications.
 - ``/help``: Display help.
 
-### Telegram notifications
-After setup with ``/start`` and ``time_set`` commands, you'll receive notifications like this at 5 AM.
+## Wake up daily with the bot
+After setup with ``/start`` and ``time_set`` commands, you'll receive notifications like this at 5 AM:
 
 <img src="img/telegram.jpg" alt="Telegram notifications example" width="400"/>
+
+<small>E-mail notifications are currently in development.</small>
