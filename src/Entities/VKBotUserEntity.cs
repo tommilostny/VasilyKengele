@@ -5,7 +5,7 @@
 /// </summary>
 /// <param name="ChatId">Telegram user chat ID.</param>
 /// <param name="Name">Telegram user first and last name.</param>
-public record VKBotUserEntity(long ChatId, string Name)
+public record VKBotUserEntity(long ChatId, string Name, string Username)
 {
     public int UtcDifference { get; set; }
 

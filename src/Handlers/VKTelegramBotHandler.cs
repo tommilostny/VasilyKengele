@@ -30,10 +30,11 @@ public class VKTelegramBotHandler
             return;
         }
         var chatId = update.Message.Chat.Id;
-        var username = $"{update.Message.Chat.FirstName} {update.Message.Chat.LastName}";
-        (var user, var userExists) = _usersRepository.Get(chatId, username);
+        var username = update.Message.Chat.Username;
+        var fullname = $"{update.Message.Chat.FirstName} {update.Message.Chat.LastName}";
+        (var user, var userExists) = _usersRepository.Get(chatId, fullname, username);
         
-        Console.WriteLine($"Received a '{messageText}' message from {username} ({chatId}).");
+        Console.WriteLine($"Received a '{messageText}' message from {fullname} ({username}, {chatId}).");
 
         switch (messageText)
         {

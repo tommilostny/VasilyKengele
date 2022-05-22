@@ -90,20 +90,21 @@ public class VKBotUsersRepository
     /// Gets user entity stored in the repository.
     /// </summary>
     /// <param name="chatId"><seealso cref="VKBotUserEntity.ChatId"/></param>
-    /// <param name="username"><seealso cref="VKBotUserEntity.Name"/></param>
+    /// <param name="fullname"><seealso cref="VKBotUserEntity.Name"/></param>
     /// <returns>
     /// Tuple that represents the user entity and its existence in the repository.
     /// If user entity is not already stored its existence is set to false and set to true otherwise.
     /// If it does not exists, new user entity is created with given chat ID and name.
     /// </returns>
-    public (VKBotUserEntity, bool) Get(long chatId, string username)
+    public (VKBotUserEntity, bool) Get(long chatId, string fullname, string? username)
     {
         var stored = _usersCollection.SingleOrDefault(u => u.ChatId == chatId);
-        if (stored is not null)
+        var exists = stored is not null;
+        if (exists && !string.IsNullOrWhiteSpace(stored!.Username))
         {
             return (stored, true);
         }
-        return (new(chatId, username), false);
+        return (new(chatId, fullname, username ?? string.Empty), exists);
     }
 
     /// <summary>
