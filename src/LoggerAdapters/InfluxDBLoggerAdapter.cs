@@ -9,7 +9,7 @@ public class InfluxDBLoggerAdapter : IUserActionLoggerAdapter
 
     public InfluxDBLoggerAdapter(IConfiguration configuration)
     {
-        if (_enabled = Convert.ToBoolean(configuration["LoggingToDbEnabled"]))
+        if (_enabled = Convert.ToBoolean(configuration["InfluxDB:LoggingToDbEnabled"]))
         {
             _token = configuration["InfluxDB:Token"];
             _bucket = configuration["InfluxDB:Bucket"];
