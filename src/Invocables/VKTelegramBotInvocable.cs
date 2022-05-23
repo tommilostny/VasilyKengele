@@ -7,14 +7,18 @@ public class VKTelegramBotInvocable : IInvocable
 {
     private readonly TelegramBotClient _botClient;
     private readonly VKBotUsersRepository _usersRepository;
+    private readonly ILogger<VKTelegramBotInvocable> _logger;
 
     /// <summary>
     /// Loads the Telegram bot token and stores a reference to the users repository.
     /// </summary>
-    public VKTelegramBotInvocable(TelegramBotClient botClient, VKBotUsersRepository usersRepository)
+    public VKTelegramBotInvocable(TelegramBotClient botClient,
+                                  VKBotUsersRepository usersRepository,
+                                  ILogger<VKTelegramBotInvocable> logger)
     {
         _botClient = botClient;
         _usersRepository = usersRepository;
+        _logger = logger;
     }
 
     /// <summary>
@@ -38,12 +42,12 @@ public class VKTelegramBotInvocable : IInvocable
                 var messageText = $"Hey {user.Name}, it's {userTime}. Time to wake up!";
 
                 var message = await _botClient.SendTextMessageAsync(user.ChatId, messageText);
-                Console.WriteLine($"Sent '{message.Text}' to: {message.Chat.Id}");
+                _logger.LogInformation("Sent '{Text}' to: {ChatId}", message.Text, message.Chat.Id);
                 
                 if (user.Email is not null)
                 {
                     //Send email
-                    Console.WriteLine($"Sent e-mail '{messageText}' to: {user.Email}");
+                    _logger.LogInformation("Sent e-mail '{Text}' to: {Email}", messageText, user.Email);
                 }
             }
         }

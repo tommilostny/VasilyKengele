@@ -6,14 +6,16 @@
 public class VKTelegramBotHandler
 {
     private readonly VKBotUsersRepository _usersRepository;
+    private readonly ILogger<VKTelegramBotHandler> _logger;
 
     /// <summary>
     /// Initializes <see cref="VKTelegramBotHandler"/> with user entities repository.
     /// </summary>
     /// <param name="usersRepository"><seealso cref="VKBotUsersRepository"/>.</param>
-    public VKTelegramBotHandler(VKBotUsersRepository usersRepository)
+    public VKTelegramBotHandler(VKBotUsersRepository usersRepository, ILogger<VKTelegramBotHandler> logger)
     {
         _usersRepository = usersRepository;
+        _logger = logger;
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient,
@@ -34,7 +36,7 @@ public class VKTelegramBotHandler
         var fullname = $"{update.Message.Chat.FirstName} {update.Message.Chat.LastName}";
         (var user, var userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
         
-        Console.WriteLine($"Received a '{messageText}' message from {fullname} ({username}, {chatId}).");
+        _logger.LogInformation("Received a '{messageText}' message from {fullname} ({username}, {chatId}).", messageText, fullname, username, chatId);
 
         switch (messageText)
         {
@@ -168,7 +170,7 @@ public class VKTelegramBotHandler
                                                          string hourString,
                                                          CancellationToken cancellationToken)
     {
-        if (hourString.All(c => Char.IsDigit(c)))
+        if (hourString.All(c => char.IsDigit(c)))
         {
             var currentHour = Convert.ToInt32(hourString);
             if (currentHour >= 0 && currentHour < 24)
@@ -314,7 +316,7 @@ public class VKTelegramBotHandler
                 => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
             _ => exception.ToString()
         };
-        Console.Error.WriteLine(errorMessage);
+        _logger.LogError(errorMessage);
         return Task.CompletedTask;
     }
 }

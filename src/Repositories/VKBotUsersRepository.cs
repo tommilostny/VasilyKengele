@@ -7,7 +7,7 @@ public class VKBotUsersRepository
 {
     private const string _usersFileName = "users.json";
     private const string _compressedFileName = $"{_usersFileName}.gz";
-    private readonly IList<VKBotUserEntity> _usersCollection;
+    private readonly IDictionary<long, VKBotUserEntity> _users;
 
     /// <summary>
     /// Tries to load user entities collection serialized in the compressed JSON file.
@@ -15,8 +15,6 @@ public class VKBotUsersRepository
     /// </summary>
     public VKBotUsersRepository()
     {
-        CheckForUncompressedJson();
-
         if (System.IO.File.Exists(_compressedFileName))
         {
             using var compressedFileStream = System.IO.File.Open(_compressedFileName, FileMode.Open);
@@ -25,14 +23,14 @@ public class VKBotUsersRepository
             decompressor.CopyTo(memoryStream);
 
             var jsonStr = Encoding.UTF8.GetString(memoryStream.GetBuffer());
-            var stored = JsonConvert.DeserializeObject<List<VKBotUserEntity>>(jsonStr);
+            var stored = JsonConvert.DeserializeObject<Dictionary<long, VKBotUserEntity>>(jsonStr);
             if (stored is not null)
             {
-                _usersCollection = stored;
+                _users = stored;
                 return;
             }
         }
-        _usersCollection = new List<VKBotUserEntity>();
+        _users = new Dictionary<long, VKBotUserEntity>();
     }
 
     /// <summary>
@@ -41,16 +39,15 @@ public class VKBotUsersRepository
     /// <param name="user">User entity to store.</param>
     public async Task AddAsync(VKBotUserEntity user)
     {
-        var existingUser = _usersCollection.SingleOrDefault(u => u.ChatId == user.ChatId);
-        if (existingUser is not null && existingUser != user)
+        var exists = _users.TryGetValue(user.ChatId, out var existingUser);
+        if (exists && existingUser is not null && existingUser != user)
         {
             user.UtcDifference = existingUser.UtcDifference;
             user.TimeZoneSet = existingUser.TimeZoneSet;
             user.ReceiveWakeUps = existingUser.ReceiveWakeUps;
             user.Email = existingUser.Email;
-            _usersCollection.Remove(existingUser);
         }
-        _usersCollection.Add(user);
+        _users[user.ChatId] = user;
         await SaveJsonAsync();
     }
 
@@ -61,14 +58,13 @@ public class VKBotUsersRepository
     /// <returns>true if user was removed successfully, otherwise false.</returns>
     public async Task<bool> RemoveAsync(long chatId)
     {
-        var existingUser = _usersCollection.SingleOrDefault(u => u.ChatId == chatId);
-        if (existingUser is null)
+        if (_users.ContainsKey(chatId))
         {
-            return false;
+            var result = _users.Remove(chatId);
+            await SaveJsonAsync();
+            return result;
         }
-        var result = _usersCollection.Remove(existingUser);
-        await SaveJsonAsync();
-        return result;
+        return false;
     }
 
     /// <summary>
@@ -78,13 +74,7 @@ public class VKBotUsersRepository
     /// <param name="user">User entity to update.</param>
     public async Task UpdateAsync(VKBotUserEntity user)
     {
-        var existingUser = _usersCollection.SingleOrDefault(u => u.ChatId == user.ChatId);
-        if (existingUser is null)
-        {
-            return;
-        }
-        _usersCollection.Remove(existingUser);
-        _usersCollection.Add(user);
+        _users[user.ChatId] = user;
         await SaveJsonAsync();
     }
 
@@ -93,7 +83,7 @@ public class VKBotUsersRepository
     /// </summary>
     public IReadOnlyCollection<VKBotUserEntity> GetAll()
     {
-        return new ReadOnlyCollection<VKBotUserEntity>(_usersCollection);
+        return new ReadOnlyCollection<VKBotUserEntity>(_users.Values.ToList());
     }
 
     /// <summary>
@@ -109,27 +99,26 @@ public class VKBotUsersRepository
     /// </returns>
     public async Task<(VKBotUserEntity, bool)> GetAsync(long chatId, string fullname, string? username)
     {
-        var existingUser = _usersCollection.SingleOrDefault(u => u.ChatId == chatId);
+        var exists = _users.TryGetValue(chatId, out var existingUser);
 
-        if (existingUser is not null) // User exists in the collection.
+        if (exists && existingUser is not null) // User exists in the repo.
         {
             // Existing user matches one stored in the repository. Return it.
-            if (existingUser!.Name == fullname && existingUser.Username == username)
+            if (existingUser.Name == fullname && existingUser.Username == username)
             {
                 return (existingUser, true);
             }
             // Existing user doesn't match. Create a new updated copy, save and return it.
-            var user = new VKBotUserEntity(chatId, fullname, username ?? string.Empty)
+            var updatedUser = new VKBotUserEntity(chatId, fullname, username ?? string.Empty)
             {
                 UtcDifference = existingUser.UtcDifference,
                 TimeZoneSet = existingUser.TimeZoneSet,
                 ReceiveWakeUps = existingUser.ReceiveWakeUps,
                 Email = existingUser.Email
             };
-            _usersCollection.Remove(existingUser);
-            _usersCollection.Add(user);
+            _users[chatId] = updatedUser;
             await SaveJsonAsync();
-            return (user, true);
+            return (updatedUser, true);
         }
         // User doesn't yet exist in the repository. Handle by outside command.
         return (new(chatId, fullname, username ?? string.Empty), false);
@@ -140,7 +129,7 @@ public class VKBotUsersRepository
     /// </summary>
     private async Task SaveJsonAsync()
     {
-        var jsonStr = JsonConvert.SerializeObject(_usersCollection);
+        var jsonStr = JsonConvert.SerializeObject(_users);
         if (jsonStr is not null)
         {
             using var compressedFileStream = System.IO.File.Create(_compressedFileName);
@@ -148,23 +137,5 @@ public class VKBotUsersRepository
             
             await compressor.WriteAsync(Encoding.UTF8.GetBytes(jsonStr));
         }
-    }
-
-    /// <summary>
-    /// Compress JSON file used in previous versions of Vasily Kengele and delete it.
-    /// </summary>
-    private static void CheckForUncompressedJson()
-    {
-        if (!System.IO.File.Exists(_usersFileName))
-        {
-            return;
-        }
-        var jsonBytes = System.IO.File.ReadAllBytes(_usersFileName);
-        using var compressedFileStream = System.IO.File.Create(_compressedFileName);
-        using var compressor = new GZipStream(compressedFileStream, CompressionMode.Compress);
-
-        compressor.Write(jsonBytes);
-
-        System.IO.File.Delete(_usersFileName);
     }
 }

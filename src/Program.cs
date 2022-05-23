@@ -1,6 +1,9 @@
 // Configure services.
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 builder.Services.AddSingleton<TelegramBotClient>(provider =>
 {
     return new(builder.Configuration[Constants.TelegramBotToken]);
