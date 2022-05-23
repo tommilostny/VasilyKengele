@@ -35,8 +35,6 @@ public class VKTelegramBotHandler
         var username = update.Message.Chat.Username;
         var fullname = $"{update.Message.Chat.FirstName} {update.Message.Chat.LastName}";
         (var user, var userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
-        
-        _logger.Log(chatId, "Received a '{0}' message from {1} ({2}, {3}).", messageText, fullname, username, chatId);
 
         switch (messageText)
         {
@@ -86,6 +84,8 @@ public class VKTelegramBotHandler
                 await HandleUnknownCommandAsync(botClient, user, cancellationToken);
                 break;
         }
+
+        _logger.Log(chatId, "Received a '{0}' message from {1} ({2}, {3}).", messageText, fullname, username, chatId);
     }
 
     private async Task ExecuteStartCommandAsync(ITelegramBotClient botClient,
