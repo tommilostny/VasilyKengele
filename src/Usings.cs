@@ -1,6 +1,10 @@
 ﻿global using Coravel;
 global using Coravel.Invocable;
 
+global using InfluxDB.Client;
+global using InfluxDB.Client.Api.Domain;
+global using InfluxDB.Client.Writes;
+
 global using Newtonsoft.Json;
 
 global using System.Collections.ObjectModel;
@@ -17,4 +21,5 @@ global using VasilyKengele;
 global using VasilyKengele.Entities;
 global using VasilyKengele.Handlers;
 global using VasilyKengele.Invocables;
+global using VasilyKengele.LoggerAdapters;
 global using VasilyKengele.Repositories;

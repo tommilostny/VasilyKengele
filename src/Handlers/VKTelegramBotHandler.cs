@@ -6,16 +6,16 @@
 public class VKTelegramBotHandler
 {
     private readonly VKBotUsersRepository _usersRepository;
-    private readonly ILogger<VKTelegramBotHandler> _logger;
+    private readonly IUserActionLoggerAdapter _logger;
 
     /// <summary>
     /// Initializes <see cref="VKTelegramBotHandler"/> with user entities repository.
     /// </summary>
     /// <param name="usersRepository"><seealso cref="VKBotUsersRepository"/>.</param>
-    public VKTelegramBotHandler(VKBotUsersRepository usersRepository, ILogger<VKTelegramBotHandler> logger)
+    public VKTelegramBotHandler(VKBotUsersRepository usersRepository, IUserActionLoggerAdapter loggerAdapter)
     {
         _usersRepository = usersRepository;
-        _logger = logger;
+        _logger = loggerAdapter;
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient,
@@ -36,7 +36,7 @@ public class VKTelegramBotHandler
         var fullname = $"{update.Message.Chat.FirstName} {update.Message.Chat.LastName}";
         (var user, var userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
         
-        _logger.LogInformation("Received a '{messageText}' message from {fullname} ({username}, {chatId}).", messageText, fullname, username, chatId);
+        _logger.Log(chatId, "Received a '{0}' message from {1} ({2}, {3}).", messageText, fullname, username, chatId);
 
         switch (messageText)
         {
@@ -316,7 +316,7 @@ public class VKTelegramBotHandler
                 => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
             _ => exception.ToString()
         };
-        _logger.LogError(errorMessage);
+        _logger.Log(-1, errorMessage);
         return Task.CompletedTask;
     }
 }

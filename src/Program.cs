@@ -1,9 +1,6 @@
 // Configure services.
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-
 builder.Services.AddSingleton<TelegramBotClient>(provider =>
 {
     return new(builder.Configuration[Constants.TelegramBotToken]);
@@ -11,6 +8,7 @@ builder.Services.AddSingleton<TelegramBotClient>(provider =>
 builder.Services.AddSingleton<VKTelegramBotHandler>();
 builder.Services.AddSingleton<VKBotUsersRepository>();
 builder.Services.AddTransient<VKTelegramBotInvocable>();
+builder.Services.AddSingleton<IUserActionLoggerAdapter, InfluxDBLoggerAdapter>();
 builder.Services.AddScheduler();
 
 // Build the ASP.NET Core application.
