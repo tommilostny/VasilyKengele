@@ -29,7 +29,7 @@ if (botClient is null)
 }
 var botReceiverOptions = new ReceiverOptions
 {
-    AllowedUpdates = new[] { UpdateType.Message }
+    AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery }
 };
 using var botCancellationTokenSource = new CancellationTokenSource();
 

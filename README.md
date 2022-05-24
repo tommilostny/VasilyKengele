@@ -20,7 +20,7 @@ Runs as a Telegram bot at: [t.me/vasilykengele_bot](t.me/vasilykengele_bot).
 ## Available bot commands
 - ``/start``: Start receiving messages at 5 o'clock.
 - ``/stop``: Stop receiving messages at 5 o'clock.
-- ``/time``: Use this to tell Vasily your current time **HOUR**. He'll use it to calculate your timezone so your receive your wake up at your correct 5 o'clock time. (Message format for current time of *2:00 PM* is: ``/time 14``).
+- ``/time``: Use this to tell Vasily your current time **HOUR**. He'll use it to calculate your timezone so your receive your wake up at your correct 5 o'clock time.
 - ``/about_me``: Get JSON data stored about you by this bot.
 - ``/delete_me``: Removes your data from out repository.
 - ``/users_count``: Returns number of users currently waking up with us.

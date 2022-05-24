@@ -22,11 +22,46 @@ public class VKTelegramBotHandler
                                         Update update,
                                         CancellationToken cancellationToken)
     {
-        if (update.Message!.Type != MessageType.Text) // Only process text messages
+        switch (update.Type)
         {
-            return;
+            case UpdateType.CallbackQuery:
+                await ProcessInlineKeyboardButtonClickAsync(botClient, update, cancellationToken);
+                break;
+            case UpdateType.Message:
+                await ProcessTextMessageAsync(botClient, update, cancellationToken);
+                break;
+            default:
+                _logger.Log(-1, "Unsupported command received.");
+                break;
         }
-        var messageText = update.Message.Text;
+    }
+
+    private async Task ProcessInlineKeyboardButtonClickAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    {
+        var chatId = update.CallbackQuery!.From.Id;
+        var username = update.CallbackQuery.From.Username;
+        var fullname = $"{update.CallbackQuery.From.FirstName} {update.CallbackQuery.From.LastName}";
+        (var user, var userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
+
+        var selectedHour = update.CallbackQuery.Data;
+        if (userExists)
+        {
+            if (selectedHour is not null)
+            {
+                await ExecuteTimeZoneUpdateCommandAsync(botClient, user, selectedHour, cancellationToken);
+            }
+            else await HandleUnknownCommandAsync(botClient, user.ChatId, cancellationToken);
+        }
+        else await HandleUnknownUserAsync(botClient, user, cancellationToken);
+
+        _logger.Log(chatId, "Received /time response '{0}' message from {1} ({2}, {3}).", selectedHour, fullname, username, chatId);
+    }
+
+    private async Task ProcessTextMessageAsync(ITelegramBotClient botClient,
+                                               Update update,
+                                               CancellationToken cancellationToken)
+    {
+        var messageText = update.Message!.Text;
         if (messageText is null)
         {
             return;
@@ -60,7 +95,11 @@ public class VKTelegramBotHandler
                 await ExecuteEmailUnubscribeCommandAsync(botClient, user, cancellationToken);
                 break;
 
-            case var timeCommandStr when timeCommandStr.StartsWith(Constants.TimeZoneSetCommand):
+            case Constants.TimeSetCommand:
+                await SendTimeSelectionInlineKeyboardAsync(botClient, user, cancellationToken);
+                break;
+
+            case var timeCommandStr when timeCommandStr.StartsWith(Constants.TimeSetCommand):
                 var hourStr = timeCommandStr.Trim().Split(' ').Last();
                 if (userExists)
                 {
@@ -81,7 +120,7 @@ public class VKTelegramBotHandler
                 break;
 
             default:
-                await HandleUnknownCommandAsync(botClient, user, cancellationToken);
+                await HandleUnknownCommandAsync(botClient, user.ChatId, cancellationToken);
                 break;
         }
 
@@ -101,7 +140,7 @@ public class VKTelegramBotHandler
             if (!user.TimeZoneSet)
             {
                 messageBuilder.AppendLine($"Wake up with us at {Constants.UpdateHour} o'clock.")
-                    .Append($"To do that Vasily needs to know your timezone by using {Constants.TimeZoneSetCommand} command.")
+                    .Append($"To do that Vasily needs to know your timezone by using {Constants.TimeSetCommand} command.")
                     .AppendLine($" Use the {Constants.HelpCommand} command for more info.");
             }
             else
@@ -198,6 +237,35 @@ public class VKTelegramBotHandler
             cancellationToken: cancellationToken);
     }
 
+    private static async Task SendTimeSelectionInlineKeyboardAsync(ITelegramBotClient botClient,
+                                                                   VKBotUserEntity user,
+                                                                   CancellationToken cancellationToken)
+    {
+        const byte buttonsCount = 24;
+        const byte cols = 8;
+        const byte rows = buttonsCount / cols;
+
+        var buttons = new List<InlineKeyboardButton[]>();
+        byte key = 0;
+
+        for (byte row = 0; row < rows; row++)
+        {
+            var keyboardRow = new InlineKeyboardButton[cols];
+            for (byte col = 0; col < cols; col++)
+            {
+                keyboardRow[col] = InlineKeyboardButton.WithCallbackData(key++.ToString());
+            }
+            buttons.Add(keyboardRow);
+        }
+        var inlineKeyboard = new InlineKeyboardMarkup(buttons);
+
+        await botClient.SendTextMessageAsync(user.ChatId,
+            text: "Select your current time <b>HOUR</b>:",
+            parseMode: ParseMode.Html,
+            replyMarkup: inlineKeyboard,
+            cancellationToken: cancellationToken);
+    }
+
     private async Task ExecuteEmailSubscribeCommandAsync(ITelegramBotClient botClient,
                                                          VKBotUserEntity user,
                                                          string email,
@@ -289,10 +357,10 @@ public class VKTelegramBotHandler
     }
 
     private static async Task HandleUnknownCommandAsync(ITelegramBotClient botClient,
-                                                        VKBotUserEntity user,
+                                                        long chatId,
                                                         CancellationToken cancellationToken)
     {
-        await botClient.SendTextMessageAsync(user.ChatId,
+        await botClient.SendTextMessageAsync(chatId,
             text: $"Vasily Kengele did not understand you!\nLearn available commands from /help.",
             cancellationToken: cancellationToken);
     }
