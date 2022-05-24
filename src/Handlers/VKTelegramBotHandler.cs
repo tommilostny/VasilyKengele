@@ -140,8 +140,7 @@ public class VKTelegramBotHandler
             if (!user.TimeZoneSet)
             {
                 messageBuilder.AppendLine($"Wake up with us at {Constants.UpdateHour} o'clock.")
-                    .Append($"To do that Vasily needs to know your timezone by using {Constants.TimeSetCommand} command.")
-                    .AppendLine($" Use the {Constants.HelpCommand} command for more info.");
+                    .Append($"To do that Vasily needs to know your timezone.");
             }
             else
             {
@@ -149,11 +148,19 @@ public class VKTelegramBotHandler
                 user.ReceiveWakeUps = true;
                 await _usersRepository.UpdateAsync(user);
             }
-
             await botClient.SendTextMessageAsync(user.ChatId,
-                    text: messageBuilder.ToString(),
-                    cancellationToken: cancellationToken);
+                text: messageBuilder.ToString(),
+                cancellationToken: cancellationToken);
+
+            if (!user.TimeZoneSet)
+            {
+                await SendTimeSelectionInlineKeyboardAsync(botClient, user, cancellationToken);
+            }
+            return;
         }
+        await botClient.SendTextMessageAsync(user.ChatId,
+            text: $"You are all set, commrade {user.Name}.",
+            cancellationToken: cancellationToken);
     }
 
     private async Task ExecuteStopCommandAsync(ITelegramBotClient botClient,
