@@ -253,7 +253,7 @@ public class VKTelegramBotHandler
         const byte cols = 8;
         const byte rows = buttonsCount / cols;
 
-        var buttons = new List<InlineKeyboardButton[]>();
+        var buttons = new List<InlineKeyboardButton[]>(rows);
         byte key = 0;
 
         for (byte row = 0; row < rows; row++)
