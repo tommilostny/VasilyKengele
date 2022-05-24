@@ -36,7 +36,9 @@ public class VKTelegramBotHandler
         }
     }
 
-    private async Task ProcessInlineKeyboardButtonClickAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    private async Task ProcessInlineKeyboardButtonClickAsync(ITelegramBotClient botClient,
+                                                             Update update,
+                                                             CancellationToken cancellationToken)
     {
         var chatId = update.CallbackQuery!.From.Id;
         var username = update.CallbackQuery.From.Username;
@@ -94,7 +96,6 @@ public class VKTelegramBotHandler
             case Constants.EmailUnsubscribeCommand:
                 await ExecuteEmailUnubscribeCommandAsync(botClient, user, cancellationToken);
                 break;
-
             case Constants.TimeSetCommand:
                 await SendTimeSelectionInlineKeyboardAsync(botClient, user, cancellationToken);
                 break;
