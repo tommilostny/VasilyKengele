@@ -15,11 +15,10 @@ builder.Services
     .AddFluentEmail(builder.Configuration["Email:From"])
     .AddSmtpSender(new SmtpClient
     {
-        Host = builder.Configuration["Email:SmtpHost"],
+        Host = builder.Configuration["Email:Smtp:Host"],
         UseDefaultCredentials = false,
-        Credentials = new NetworkCredential(builder.Configuration["Email:SmtpUsername"], builder.Configuration["Email:SmtpPassword"]),
-        Port = Convert.ToInt32(builder.Configuration["Email:SmtpPort"]),
-        
+        Credentials = new NetworkCredential(builder.Configuration["Email:Smtp:Username"], builder.Configuration["Email:Smtp:Password"]),
+        Port = Convert.ToInt32(builder.Configuration["Email:Smtp:Port"])
     });
 
 // Build the ASP.NET Core application.
