@@ -34,4 +34,4 @@ After setup with ``/start`` and ``/time`` commands, you'll receive Telegram noti
 
 <img src="img/telegram.jpg" alt="Telegram notifications example" width="400"/>
 
-<small>E-mail notifications are currently in development.</small>
+**Warning**: E-mail notifications are currently in development and may end in users spam folder (still testing proper authentication of messages using *DKIM*).
