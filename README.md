@@ -10,7 +10,8 @@ Runs as a Telegram bot at: [t.me/vasilykengele_bot](t.me/vasilykengele_bot).
 - Install .NET 6.0 with ASP.NET Core 6.0 to use ``dotnet`` CLI.
 - Go to the source directory (**``cd src``**).
 - Set the Telegram bot token in [appsettings.json](VasilyKengele/appsettings.json).
-- Optional: logging to **InfluxDB** (put credentials to appsettings.json and set *LoggingToDbEnabled* to *true*).
+- *Optional*: logging to **InfluxDB** (put credentials to appsettings.json and set *LoggingToDbEnabled* to *true*).
+- *Optional*: To send periodic e-mails with Telegram Bot messages, set email credentials in appsettings.json and set *Enabled* to *true* to activate.
 - Build and run in *Release* mode (bot then sends wake up messages at 5 AM):
     - ``dotnet publish --configuration Release``
     - ``dotnet bin/Release/net6.0/publish/VasilyKengele.dll``

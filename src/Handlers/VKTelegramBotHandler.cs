@@ -31,7 +31,7 @@ public class VKTelegramBotHandler
                 await ProcessTextMessageAsync(botClient, update, cancellationToken);
                 break;
             default:
-                _logger.Log(-1, "Unsupported command received.");
+                _logger.Log(-1, "Unsupported Telegram Update received.");
                 break;
         }
     }
@@ -249,13 +249,14 @@ public class VKTelegramBotHandler
                                                                    VKBotUserEntity user,
                                                                    CancellationToken cancellationToken)
     {
+        //Setup keyboard dimensions.
         const byte buttonsCount = 24;
         const byte cols = 8;
         const byte rows = buttonsCount / cols;
 
+        //Create buttons in the layout.
         var buttons = new List<InlineKeyboardButton[]>(rows);
         byte key = 0;
-
         for (byte row = 0; row < rows; row++)
         {
             var keyboardRow = new InlineKeyboardButton[cols];
@@ -265,6 +266,8 @@ public class VKTelegramBotHandler
             }
             buttons.Add(keyboardRow);
         }
+
+        //Send the message with generated keyboard buttons.
         var inlineKeyboard = new InlineKeyboardMarkup(buttons);
 
         await botClient.SendTextMessageAsync(user.ChatId,

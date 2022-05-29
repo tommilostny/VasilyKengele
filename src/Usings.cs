@@ -1,6 +1,8 @@
 ﻿global using Coravel;
 global using Coravel.Invocable;
 
+global using FluentEmail.Core;
+
 global using InfluxDB.Client;
 global using InfluxDB.Client.Api.Domain;
 global using InfluxDB.Client.Writes;
@@ -9,6 +11,8 @@ global using Newtonsoft.Json;
 
 global using System.Collections.ObjectModel;
 global using System.IO.Compression;
+global using System.Net;
+global using System.Net.Mail;
 global using System.Text;
 
 global using Telegram.Bot;
