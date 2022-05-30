@@ -4,9 +4,11 @@ Knock-off version of the original [Asili Kengele](https://linktr.ee/asilikengele
 
 Runs as a Telegram bot at: [t.me/vasilykengele_bot](t.me/vasilykengele_bot).
 
+Optionally this bot provides a possibility to subscribe to e-mail notification as well. Our current domain and SMTP server provider is [forpsi.com](https://www.forpsi.com/) which enables us to use an e-mail address **``wakeupwith@vasilykengele.eu``**. *Warning* if your're about to install this bot for your own use: e-mail notifications may end in users spam folder if you don't provide proper authentication and your SMTP server doesn't sign messages using *DKIM*.
+
 <img src="img/vasily.jpg" alt="Vasily Kengele photo" width="166"/>
 
-## Installation
+## Install your own Telegram bot
 - Install .NET 6.0 with ASP.NET Core 6.0 to use ``dotnet`` CLI.
 - Go to the source directory (**``cd src``**).
 - Set the Telegram bot token in [appsettings.json](VasilyKengele/appsettings.json).
@@ -34,4 +36,6 @@ After setup with ``/start`` and ``/time`` commands, you'll receive Telegram noti
 
 <img src="img/telegram.jpg" alt="Telegram notifications example" width="400"/>
 
-**Warning**: E-mail notifications are currently in development and may end in users spam folder (still testing proper authentication of messages using *DKIM*).
+And after setting your e-mail address with ``/email`` command, you'll receiver these notifications there as well.
+
+<img src="img/email.jpg" alt="Telegram notifications example" width="400"/>
