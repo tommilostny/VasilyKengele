@@ -58,7 +58,7 @@ app.Services.UseScheduler(scheduler =>
 #if DEBUG
     scheduler.Schedule<VKBotInvocable>().EveryTenSeconds();
 #else
-    scheduler.Schedule<VKTelegramBotInvocable>().HourlyAt(0);
+    scheduler.Schedule<VKBotInvocable>().HourlyAt(0);
 #endif
 });
 
