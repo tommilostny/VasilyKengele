@@ -14,11 +14,15 @@ Optionally this bot provides a possibility to subscribe to e-mail notification a
 - Set the Telegram bot token in [appsettings.json](VasilyKengele/appsettings.json).
 - *Optional*: logging to **InfluxDB** (put credentials to appsettings.json and set *LoggingToDbEnabled* to *true*).
 - *Optional*: To send periodic e-mails with Telegram Bot messages, set email credentials in appsettings.json and set *Enabled* to *true* to activate.
-- Build and run in *Release* mode (bot then sends wake up messages at 5 AM):
-    - ``dotnet publish --configuration Release``
-    - ``dotnet bin/Release/net6.0/publish/VasilyKengele.dll``
-- Or run in *Debug* mode (bot sends test wake up messages every 5 seconds):
-    - ``dotnet run``
+1. Build and run the bot yourself.
+    - Build and run in *Release* mode (bot then sends wake up messages at 5 AM):
+        - ``dotnet publish --configuration Release``
+        - ``dotnet bin/Release/net6.0/publish/VasilyKengele.dll``
+    - Or run in *Debug* mode (bot sends test wake up messages every 5 seconds):
+        - ``dotnet run``
+1. Use the [**VKServiceManager.sh**](VKServiceManager.sh) bash script (it starts up the Vasily Kengele bot to run as a daemon under systemd and can also stop it).
+    - Open VKServiceManager.sh in your favorite editor and check if paths to dotnet and VasilyKengele folder is correct in the **DOTNET** and **VK_FOLDER** variables.
+    - Run as root: ``sudo ./VKServiceManager.sh``
 
 ## Available bot commands
 - ``/start``: Start receiving messages at 5 o'clock.
