@@ -1,24 +1,21 @@
 ﻿namespace VasilyKengele.Commands;
 
-public static class AboutMeCommand
+public class AboutMeCommand : IVKBotCommand
 {
-    public const string Name = "/about_me";
-
-    public static async Task ExecuteAsync(ITelegramBotClient botClient,
-                                          VKBotUsersRepository usersRepository,
-                                          VKBotUserEntity user,
-                                          CancellationToken cancellationToken)
+    public async Task ExecuteAsync(CommandParameters parameters)
     {
-        (var stored, var exists) = await usersRepository.GetAsync(user.ChatId, user.Name, user.Username);
+        var user = parameters.User;
+        (var stored, var exists) = await parameters.UsersRepository.GetAsync(user.ChatId, user.Name, user.Username);
+        
         if (exists)
         {
-            await botClient.SendTextMessageAsync(user.ChatId,
+            await parameters.BotClient.SendTextMessageAsync(user.ChatId,
                 text: JsonConvert.SerializeObject(stored),
-                cancellationToken: cancellationToken);
+                cancellationToken: parameters.CancellationToken);
             return;
         }
-        await botClient.SendTextMessageAsync(user.ChatId,
+        await parameters.BotClient.SendTextMessageAsync(user.ChatId,
             text: $"I do not recognize you, {user.Name}...\nAre you perhaps looking for this? https://www.aboutyou.cz/",
-            cancellationToken: cancellationToken);
+            cancellationToken: parameters.CancellationToken);
     }
 }

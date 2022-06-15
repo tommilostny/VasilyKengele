@@ -1,19 +1,14 @@
 ﻿namespace VasilyKengele.Commands;
 
-public static class DeleteMeCommand
+public class DeleteMeCommand : IVKBotCommand
 {
-    public const string Name = "/delete_me";
-
-    public static async Task ExecuteAsync(ITelegramBotClient botClient,
-                                          VKBotUsersRepository usersRepository,
-                                          VKBotUserEntity user,
-                                          CancellationToken cancellationToken)
+    public async Task ExecuteAsync(CommandParameters parameters)
     {
-        if (await usersRepository.RemoveAsync(user.ChatId))
+        if (await parameters.UsersRepository.RemoveAsync(parameters.User.ChatId))
         {
-            await botClient.SendTextMessageAsync(user.ChatId,
-                text: $"Goodbye, commrade {user.Name}!\nVasily Kengele is sad to see you leave.",
-                cancellationToken: cancellationToken);
+            await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId,
+                text: $"Goodbye, commrade {parameters.User.Name}!\nVasily Kengele is sad to see you leave.",
+                cancellationToken: parameters.CancellationToken);
         }
     }
 }

@@ -1,17 +1,13 @@
 ﻿namespace VasilyKengele.Commands;
 
-public static class StartCommand
+public class StartCommand : IVKBotCommand
 {
-    public const string Name = "/start";
-
-    public static async Task ExecuteAsync(ITelegramBotClient botClient,
-                                          VKBotUsersRepository usersRepository,
-                                          VKBotUserEntity user,
-                                          CancellationToken cancellationToken)
+    public async Task ExecuteAsync(CommandParameters parameters)
     {
+        var user = parameters.User;
         if (!user.ReceiveWakeUps)
         {
-            await usersRepository.AddAsync(user);
+            await parameters.UsersRepository.AddAsync(user);
             var messageBuilder = new StringBuilder()
                 .AppendLine($"Vasily Kengele welcomes you, commrade {user.Name}!");
 
@@ -24,20 +20,20 @@ public static class StartCommand
             {
                 messageBuilder.AppendLine($"You will now receive 5 o'clock wake ups from Vasily again.");
                 user.ReceiveWakeUps = true;
-                await usersRepository.UpdateAsync(user);
+                await parameters.UsersRepository.UpdateAsync(user);
             }
-            await botClient.SendTextMessageAsync(user.ChatId,
+            await parameters.BotClient.SendTextMessageAsync(user.ChatId,
                 text: messageBuilder.ToString(),
-                cancellationToken: cancellationToken);
+                cancellationToken: parameters.CancellationToken);
 
             if (!user.TimeZoneSet)
             {
-                await TimeCommand.SendInlineKeyboardAsync(botClient, user, cancellationToken);
+                await TimeCommand.SendInlineKeyboardAsync(parameters);
             }
             return;
         }
-        await botClient.SendTextMessageAsync(user.ChatId,
+        await parameters.BotClient.SendTextMessageAsync(user.ChatId,
             text: $"You are all set, commrade {user.Name}.",
-            cancellationToken: cancellationToken);
+            cancellationToken: parameters.CancellationToken);
     }
 }

@@ -1,23 +1,31 @@
 ﻿namespace VasilyKengele.Commands;
 
-public static class TimeCommand
+public class TimeCommand : IVKBotCommand
 {
-    public const string Name = "/time";
+    private readonly string? _hourArg;
 
-    public static async Task ExecuteAsync(ITelegramBotClient botClient,
-                                          VKBotUsersRepository usersRepository,
-                                          VKBotUserEntity user,
-                                          string hourString,
-                                          CancellationToken cancellationToken)
+    public TimeCommand(string? hour = null)
     {
-        if (hourString.All(c => char.IsDigit(c)))
+        _hourArg = hour;
+    }
+
+    public async Task ExecuteAsync(CommandParameters parameters)
+    {
+        if (_hourArg is null)
         {
-            var currentHour = Convert.ToInt32(hourString);
+            await SendInlineKeyboardAsync(parameters);
+            return;
+        }
+
+        var user = parameters.User;
+        if (_hourArg.All(c => char.IsDigit(c)))
+        {
+            var currentHour = Convert.ToInt32(_hourArg);
             if (currentHour >= 0 && currentHour < 24)
             {
                 user.TimeZoneSet = user.ReceiveWakeUps = true;
                 user.UtcDifference = currentHour - DateTime.UtcNow.Hour;
-                await usersRepository.UpdateAsync(user);
+                await parameters.UsersRepository.UpdateAsync(user);
 
                 var messageBuilder = new StringBuilder($"Congratulations {user.Name}, your timezone was set to UTC");
                 if (user.UtcDifference >= 0)
@@ -27,20 +35,18 @@ public static class TimeCommand
                 messageBuilder.AppendLine($"{user.UtcDifference}!")
                     .AppendLine($"You will now receive 5 o'clock wake ups from Vasily Kengele in correct time.");
 
-                await botClient.SendTextMessageAsync(user.ChatId,
+                await parameters.BotClient.SendTextMessageAsync(user.ChatId,
                     text: messageBuilder.ToString(),
-                    cancellationToken: cancellationToken);
+                    cancellationToken: parameters.CancellationToken);
                 return;
             }
         }
-        await botClient.SendTextMessageAsync(user.ChatId,
-            text: $"{hourString} is not a valid hour. Check the message format example with /help.",
-            cancellationToken: cancellationToken);
+        await parameters.BotClient.SendTextMessageAsync(user.ChatId,
+            text: $"'{_hourArg}' is not a valid hour. Check the message format example with /help.",
+            cancellationToken: parameters.CancellationToken);
     }
 
-    public static async Task SendInlineKeyboardAsync(ITelegramBotClient botClient,
-                                                     VKBotUserEntity user,
-                                                     CancellationToken cancellationToken)
+    public static async Task SendInlineKeyboardAsync(CommandParameters parameters)
     {
         //Setup keyboard dimensions.
         const byte buttonsCount = 24;
@@ -63,10 +69,10 @@ public static class TimeCommand
         //Send the message with generated keyboard buttons.
         var inlineKeyboard = new InlineKeyboardMarkup(buttons);
 
-        await botClient.SendTextMessageAsync(user.ChatId,
+        await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId,
             text: "Select your current time <b>HOUR</b>:",
             parseMode: ParseMode.Html,
             replyMarkup: inlineKeyboard,
-            cancellationToken: cancellationToken);
+            cancellationToken: parameters.CancellationToken);
     }
 }

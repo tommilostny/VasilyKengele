@@ -1,22 +1,18 @@
 ﻿namespace VasilyKengele.Commands;
 
-public static class StopCommand
+public class StopCommand : IVKBotCommand
 {
-    public const string Name = "/stop";
-
-    public static async Task ExecuteAsync(ITelegramBotClient botClient,
-                                          VKBotUsersRepository usersRepository,
-                                          VKBotUserEntity user,
-                                          CancellationToken cancellationToken)
+    public async Task ExecuteAsync(CommandParameters parameters)
     {
+        var user = parameters.User;
         if (user.ReceiveWakeUps)
         {
             user.ReceiveWakeUps = false;
-            await usersRepository.UpdateAsync(user);
+            await parameters.UsersRepository.UpdateAsync(user);
 
-            await botClient.SendTextMessageAsync(user.ChatId,
-                text: $"Vasily Kengele will no longer wake you up.\nReactivate with /start.",
-                cancellationToken: cancellationToken);
+            await parameters.BotClient.SendTextMessageAsync(user.ChatId,
+                text: "Vasily Kengele will no longer wake you up.\nReactivate with /start.",
+                cancellationToken: parameters.CancellationToken);
         }
     }
 }

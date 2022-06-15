@@ -1,25 +1,23 @@
 ﻿namespace VasilyKengele.Commands;
 
-public static class UsersCountCommand
+public class UsersCountCommand : IVKBotCommand
 {
-    public const string Name = "/users_count";
-
-    public static async Task ExecuteAsync(ITelegramBotClient botClient,
-                                          VKBotUsersRepository usersRepository,
-                                          VKBotUserEntity user,
-                                          CancellationToken cancellationToken)
+    public async Task ExecuteAsync(CommandParameters parameters)
     {
-        var users = usersRepository.GetAll();
+        var users = parameters.UsersRepository.GetAll();
         var wakingUp = users.Count(u => u.ReceiveWakeUps);
         var notWakingUp = users.Count(u => !u.ReceiveWakeUps);
 
-        var messageBuilder = new StringBuilder($"Right now <b>{wakingUp}</b> users are waking up with Vasily Kengele!")
-            .AppendLine()
-            .AppendLine($"And <b>{notWakingUp}</b> of the registered users are not waking up with us.");
+        var messageBuilder = new StringBuilder($"Right now <b>{wakingUp}</b> user")
+            .Append(wakingUp == 1 ? " is" : "s are")
+            .Append(" waking up with Vasily Kengele ")
+            .Append($"and <b>{notWakingUp}</b> ")
+            .Append(notWakingUp == 1 ? "is" : "are")
+            .Append(" not.");
 
-        await botClient.SendTextMessageAsync(user.ChatId,
+        await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId,
             text: messageBuilder.ToString(),
             parseMode: ParseMode.Html,
-            cancellationToken: cancellationToken);
+            cancellationToken: parameters.CancellationToken);
     }
 }
