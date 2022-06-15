@@ -3,7 +3,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(provider =>
 {
-    return new(builder.Configuration[Constants.TelegramBotToken]);
+    return new(builder.Configuration["TelegramBotToken"]);
 });
 builder.Services.AddSingleton<VKTelegramBotHandler>();
 builder.Services.AddSingleton<VKBotUsersRepository>();

@@ -1,7 +1,7 @@
 ﻿namespace VasilyKengele.Invocables;
 
 /// <summary>
-/// Class that is used to send daily 5 AM (<seealso cref="Constants.UpdateHour"/>) messages to registered users.
+/// Class that is used to send daily 5 AM messages to registered users.
 /// </summary>
 public class VKBotInvocable : IInvocable
 {
@@ -43,7 +43,7 @@ public class VKBotInvocable : IInvocable
             var userTime = utcNow.AddHours(user.UtcDifference);
 
 #if !DEBUG //Release mode: check if it is the correct 5 AM time. Debug mode: skip this check.
-            if (userTime.Hour != Constants.UpdateHour)
+            if (userTime.Hour != 5)
                 continue;
 #endif
             //Create message and send it.
