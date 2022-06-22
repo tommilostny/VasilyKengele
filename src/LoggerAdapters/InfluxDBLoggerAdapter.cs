@@ -61,9 +61,45 @@ public class InfluxDBLoggerAdapter : IUserActionLoggerAdapter
                 .Field("message", message)
                 .Timestamp(utcNow, WritePrecision.Ns);
 
-            using var client = InfluxDBClientFactory.Create("http://localhost:8086", _token);
+            using var client = CreateDbClient();
             using var writeApi = client.GetWriteApi();
             writeApi.WritePoint(point, _bucket, _organization);
         }
     }
+
+    public async Task<IReadOnlyCollection<string>> ReadLogsAsync(int count)
+    {
+        if (!_enabled)
+        {
+            throw new InvalidOperationException();
+        }
+        var queryBuilder = new StringBuilder()
+            .Append($"from(bucket: \"{_bucket}\")")
+            .Append(" |> range(start: -30d)")
+            .Append(" |> filter(fn: (r) => r[\"_measurement\"] == \"vkLog\")")
+            .Append(" |> filter(fn: (r) => r[\"_field\"] == \"message\")")
+            .Append(" |> filter(fn: (r) => r[\"chatId\"] != \"-1\")");
+    
+        using var client = CreateDbClient();
+        var tables = await client.GetQueryApi().QueryAsync(queryBuilder.ToString(), _organization);
+        var records = tables.SelectMany(table => table.Records);
+
+        var startIndex = records.Count() - count;
+        if (startIndex < 0)
+        {
+            startIndex = 0;
+        }
+        var logs = new List<string>(count);
+        foreach (var record in records.Skip(startIndex))
+        {
+            logs.Add($"<b>{record.GetTimeInDateTime()}</b>: {record.GetValue()}");
+            if (logs.Count == count)
+            {
+                break;
+            }
+        }
+        return new ReadOnlyCollection<string>(logs);
+    }
+
+    private InfluxDBClient CreateDbClient() => InfluxDBClientFactory.Create("http://localhost:8086", _token);
 }

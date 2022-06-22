@@ -22,9 +22,9 @@ global using Telegram.Bot.Types;
 global using Telegram.Bot.Types.Enums;
 global using Telegram.Bot.Types.ReplyMarkups;
 
-global using VasilyKengele;
-global using VasilyKengele.Entities;
 global using VasilyKengele.Commands;
+global using VasilyKengele.Entities;
+global using VasilyKengele.Factories;
 global using VasilyKengele.Handlers;
 global using VasilyKengele.Invocables;
 global using VasilyKengele.LoggerAdapters;

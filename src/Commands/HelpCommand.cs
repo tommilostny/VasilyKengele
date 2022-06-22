@@ -1,11 +1,13 @@
 ﻿namespace VasilyKengele.Commands;
 
-public class HelpCommand : IVKBotCommand
+public class HelpCommand : AuthenticatedCommandBase, IVKBotCommand
 {
+    public HelpCommand(IConfiguration configuration) : base(configuration) { }
+
     public async Task ExecuteAsync(CommandParameters parameters)
     {
         var helpBuilder = new StringBuilder("<b>Available commands</b>:\n");
-        foreach (var command in GetAllCommands())
+        foreach (var command in GetAllCommands(parameters.User.ChatId))
         {
             helpBuilder.AppendLine($"{command}: {HelpStrings[command]}");
         }
@@ -15,7 +17,7 @@ public class HelpCommand : IVKBotCommand
             cancellationToken: parameters.CancellationToken);
     }
 
-    private static IEnumerable<string> GetAllCommands()
+    private IEnumerable<string> GetAllCommands(long userChatId)
     {
         yield return IVKBotCommand.Start;
         yield return IVKBotCommand.Stop;
@@ -26,6 +28,10 @@ public class HelpCommand : IVKBotCommand
         yield return IVKBotCommand.EmailSubscribe;
         yield return IVKBotCommand.EmailUnsubscribe;
         yield return IVKBotCommand.Help;
+        if (userChatId == MainChatId)
+        {
+            yield return IVKBotCommand.Log;
+        }
     }
 
     private static ReadOnlyDictionary<string, string> HelpStrings { get; } = new(new Dictionary<string, string>
@@ -39,5 +45,6 @@ public class HelpCommand : IVKBotCommand
         { IVKBotCommand.EmailSubscribe, $"Subscribe to the e-mail wake up notifications as well. Message format: <code>{IVKBotCommand.EmailSubscribe} person@email.com</code>." },
         { IVKBotCommand.EmailUnsubscribe, "Remove your email from our repository." },
         { IVKBotCommand.Help, "Display this help." },
+        { IVKBotCommand.Log, $"Load logs from InfluxDB. Message format to get last 20 logs: <code>{IVKBotCommand.Log} 20</code>" }
     });
 }

@@ -7,15 +7,22 @@ public class VKTelegramBotHandler
 {
     private readonly VKBotUsersRepository _usersRepository;
     private readonly IUserActionLoggerAdapter _logger;
+    private readonly IConfiguration _configuration;
+    private readonly BotCommandFactory _commandFactory;
 
     /// <summary>
     /// Initializes <see cref="VKTelegramBotHandler"/> with user entities repository.
     /// </summary>
     /// <param name="usersRepository"><seealso cref="VKBotUsersRepository"/>.</param>
-    public VKTelegramBotHandler(VKBotUsersRepository usersRepository, IUserActionLoggerAdapter loggerAdapter)
+    public VKTelegramBotHandler(VKBotUsersRepository usersRepository,
+                                IUserActionLoggerAdapter loggerAdapter,
+                                IConfiguration configuration,
+                                BotCommandFactory commandFactory)
     {
         _usersRepository = usersRepository;
         _logger = loggerAdapter;
+        _configuration = configuration;
+        _commandFactory = commandFactory;
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient,
@@ -52,7 +59,7 @@ public class VKTelegramBotHandler
 
         try
         {
-            var command = IVKBotCommand.MatchCommandType(messageText);
+            var command = _commandFactory.MatchCommand(messageText);
             var parameters = new CommandParameters(botClient, _usersRepository, user, cancellationToken);
 
             if (command is TimeCommand or EmailSubscribeCommand && !userExists)

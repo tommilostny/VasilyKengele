@@ -351,3 +351,4 @@ MigrationBackup/
 
 users.json
 users.json.gz
+.vscode

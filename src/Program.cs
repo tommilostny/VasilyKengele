@@ -9,6 +9,7 @@ builder.Services.AddSingleton<VKTelegramBotHandler>();
 builder.Services.AddSingleton<VKBotUsersRepository>();
 builder.Services.AddTransient<VKBotInvocable>();
 builder.Services.AddSingleton<IUserActionLoggerAdapter, InfluxDBLoggerAdapter>();
+builder.Services.AddSingleton<BotCommandFactory>();
 
 builder.Services.AddScheduler();
 builder.Services
