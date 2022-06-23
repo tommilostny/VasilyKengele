@@ -12,20 +12,20 @@ DOTNET=$HOME_FOLDER/.dotnet/dotnet
 
 compileVK()
 {
-	echo "\nCompiling Vasily Kengele..."
+	printf "\nCompiling Vasily Kengele..."
 	$DOTNET publish -c Release $VK_FOLDER/src/VasilyKengele.csproj
 }
 
 startVK()
 {
-	echo "\nStarting and enabling the service on boot."
+	printf "\nStarting and enabling the service on boot."
 	systemctl enable VasilyKengele.service
 	systemctl start VasilyKengele.service
 }
 
 stopVK()
 {
-	echo "\nStopping and disabling the service."
+	printf "\nStopping and disabling the service."
 	systemctl stop VasilyKengele.service
 	systemctl disable VasilyKengele.service
 }
