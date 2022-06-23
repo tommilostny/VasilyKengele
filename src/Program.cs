@@ -1,17 +1,22 @@
 // Configure services.
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(provider =>
-{
-    return new(builder.Configuration["TelegramBotToken"]);
-});
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Services.AddSingleton<ILoggerAdapter, InfluxDBLoggerAdapter>();
+
 builder.Services.AddSingleton<VKTelegramBotHandler>();
 builder.Services.AddSingleton<VKBotUsersRepository>();
 builder.Services.AddTransient<VKBotInvocable>();
-builder.Services.AddSingleton<IUserActionLoggerAdapter, InfluxDBLoggerAdapter>();
 builder.Services.AddSingleton<BotCommandFactory>();
 
+builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ =>
+{
+    return new(builder.Configuration["TelegramBotToken"]);
+});
+
 builder.Services.AddScheduler();
+
 builder.Services
     .AddFluentEmail(builder.Configuration["Email:From"])
     .AddSmtpSender(new SmtpClient

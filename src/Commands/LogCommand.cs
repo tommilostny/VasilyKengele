@@ -2,10 +2,10 @@
 
 public class LogCommand : AuthenticatedCommandBase, IVKBotCommand
 {
-    private readonly IUserActionLoggerAdapter _logger;
+    private readonly ILoggerAdapter _logger;
     private readonly int _count;
 
-    public LogCommand(IConfiguration configuration, IUserActionLoggerAdapter logger, int count) : base(configuration)
+    public LogCommand(IConfiguration configuration, ILoggerAdapter logger, int count) : base(configuration)
     {
         _logger = logger;
         _count = count;

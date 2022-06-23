@@ -1,13 +1,14 @@
 ﻿namespace VasilyKengele.LoggerAdapters;
 
-public class InfluxDBLoggerAdapter : IUserActionLoggerAdapter
+public class InfluxDBLoggerAdapter : ILoggerAdapter
 {
+    private readonly ILogger<InfluxDBLoggerAdapter> _logger;
     private readonly bool _enabled;
     private readonly string? _token;
     private readonly string? _bucket;
     private readonly string? _organization;
 
-    public InfluxDBLoggerAdapter(IConfiguration configuration)
+    public InfluxDBLoggerAdapter(IConfiguration configuration, ILogger<InfluxDBLoggerAdapter> logger)
     {
         if (_enabled = Convert.ToBoolean(configuration["InfluxDB:LoggingToDbEnabled"]))
         {
@@ -15,6 +16,7 @@ public class InfluxDBLoggerAdapter : IUserActionLoggerAdapter
             _bucket = configuration["InfluxDB:Bucket"];
             _organization = configuration["InfluxDB:Organization"];
         }
+        _logger = logger;
     }
 
     public void Log(long chatId, string message)
@@ -49,9 +51,7 @@ public class InfluxDBLoggerAdapter : IUserActionLoggerAdapter
     private void WriteMessage(long chatId, string message)
     {
         var utcNow = DateTime.UtcNow;
-        Console.Write(utcNow.ToLocalTime());
-        Console.Write(": ");
-        Console.WriteLine(message);
+        _logger.LogInformation("{timestamp}: {message}", utcNow.ToLocalTime(), message);
 
         if (_enabled)
         {

@@ -1,6 +1,6 @@
 ﻿namespace VasilyKengele.LoggerAdapters;
 
-public interface IUserActionLoggerAdapter
+public interface ILoggerAdapter
 {
     void Log(long chatId, string message);
 

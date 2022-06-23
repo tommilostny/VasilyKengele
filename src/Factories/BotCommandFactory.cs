@@ -3,9 +3,9 @@ namespace VasilyKengele.Factories;
 public class BotCommandFactory
 {
     private readonly IConfiguration _configuration;
-    private readonly IUserActionLoggerAdapter _logger;
+    private readonly ILoggerAdapter _logger;
 
-    public BotCommandFactory(IConfiguration configuration, IUserActionLoggerAdapter logger)
+    public BotCommandFactory(IConfiguration configuration, ILoggerAdapter logger)
     {
         _configuration = configuration;
         _logger = logger;

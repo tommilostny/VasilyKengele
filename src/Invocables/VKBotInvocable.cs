@@ -7,7 +7,7 @@ public class VKBotInvocable : IInvocable
 {
     private readonly ITelegramBotClient _botClient;
     private readonly VKBotUsersRepository _usersRepository;
-    private readonly IUserActionLoggerAdapter _logger;
+    private readonly ILoggerAdapter _logger;
     private readonly IFluentEmailFactory? _fluentEmailFactory;
 
     /// <summary>
@@ -15,7 +15,7 @@ public class VKBotInvocable : IInvocable
     /// </summary>
     public VKBotInvocable(ITelegramBotClient botClient,
                           VKBotUsersRepository usersRepository,
-                          IUserActionLoggerAdapter loggerAdapter,
+                          ILoggerAdapter loggerAdapter,
                           IFluentEmailFactory fluentEmailFactory,
                           IConfiguration configuration)
     {

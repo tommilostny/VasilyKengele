@@ -6,7 +6,7 @@
 public class VKTelegramBotHandler
 {
     private readonly VKBotUsersRepository _usersRepository;
-    private readonly IUserActionLoggerAdapter _logger;
+    private readonly ILoggerAdapter _logger;
     private readonly IConfiguration _configuration;
     private readonly BotCommandFactory _commandFactory;
 
@@ -15,7 +15,7 @@ public class VKTelegramBotHandler
     /// </summary>
     /// <param name="usersRepository"><seealso cref="VKBotUsersRepository"/>.</param>
     public VKTelegramBotHandler(VKBotUsersRepository usersRepository,
-                                IUserActionLoggerAdapter loggerAdapter,
+                                ILoggerAdapter loggerAdapter,
                                 IConfiguration configuration,
                                 BotCommandFactory commandFactory)
     {
