@@ -67,7 +67,7 @@ public class InfluxDBLoggerAdapter : IUserActionLoggerAdapter
         }
     }
 
-    public async Task<IReadOnlyCollection<string>> ReadLogsAsync(int count)
+    public async Task<IReadOnlyCollection<string>> ReadLogsAsync(int count, int userUtcDiff)
     {
         if (!_enabled)
         {
@@ -92,10 +92,14 @@ public class InfluxDBLoggerAdapter : IUserActionLoggerAdapter
         var logs = new List<string>(count);
         foreach (var record in records.Skip(startIndex))
         {
-            logs.Add($"<b>{record.GetTimeInDateTime()}</b>: {record.GetValue()}");
-            if (logs.Count == count)
+            var timestamp = record.GetTimeInDateTime();
+            if (timestamp is not null)
             {
-                break;
+                logs.Add($"<b>{timestamp.Value.AddHours(userUtcDiff)}</b>: {record.GetValue()}");
+                if (logs.Count == count)
+                {
+                    break;
+                }
             }
         }
         return new ReadOnlyCollection<string>(logs);

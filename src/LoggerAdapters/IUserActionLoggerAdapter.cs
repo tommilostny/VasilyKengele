@@ -12,5 +12,5 @@ public interface IUserActionLoggerAdapter
 
     void Log(long chatId, string message, params object?[] args);
 
-    Task<IReadOnlyCollection<string>> ReadLogsAsync(int count);
+    Task<IReadOnlyCollection<string>> ReadLogsAsync(int count, int userUtcDiff);
 }
