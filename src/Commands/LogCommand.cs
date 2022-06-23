@@ -17,9 +17,6 @@ public class LogCommand : AuthenticatedCommandBase, IVKBotCommand
         {
             return;
         }
-        foreach (var message in await _logger.ReadLogsAsync(_count, parameters.User.UtcDifference))
-        {
-            await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId, message, ParseMode.Html);
-        }
+        await _logger.ReadLogsToBotAsync(_count, parameters);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace VasilyKengele.LoggerAdapters;
+﻿using Telegram.Bot.Types;
+
+namespace VasilyKengele.LoggerAdapters;
 
 public class InfluxDBLoggerAdapter : ILoggerAdapter
 {
@@ -67,9 +69,11 @@ public class InfluxDBLoggerAdapter : ILoggerAdapter
         }
     }
 
-    public async Task<IReadOnlyCollection<string>> ReadLogsAsync(int count, int userUtcDiff)
+    private InfluxDBClient CreateDbClient() => InfluxDBClientFactory.Create("http://localhost:8086", _token);
+
+    public async Task ReadLogsToBotAsync(int count, CommandParameters parameters)
     {
-        if (!_enabled)
+        if (!_enabled || count < 0)
         {
             throw new InvalidOperationException();
         }
@@ -79,31 +83,26 @@ public class InfluxDBLoggerAdapter : ILoggerAdapter
             .Append(" |> filter(fn: (r) => r[\"_measurement\"] == \"vkLog\")")
             .Append(" |> filter(fn: (r) => r[\"_field\"] == \"message\")")
             .Append(" |> filter(fn: (r) => r[\"chatId\"] != \"-1\")");
-    
+
         using var client = CreateDbClient();
         var tables = await client.GetQueryApi().QueryAsync(queryBuilder.ToString(), _organization);
         var records = tables.SelectMany(table => table.Records);
+        
+        var user = parameters.User;
+        var startIndex = Math.Max(records.Count() - count, 0);
 
-        var startIndex = records.Count() - count;
-        if (startIndex < 0)
-        {
-            startIndex = 0;
-        }
-        var logs = new List<string>(count);
         foreach (var record in records.Skip(startIndex))
         {
             var timestamp = record.GetTimeInDateTime();
             if (timestamp is not null)
             {
-                logs.Add($"<b>{timestamp.Value.AddHours(userUtcDiff)}</b>: {record.GetValue()}");
-                if (logs.Count == count)
-                {
+                await parameters.BotClient.SendTextMessageAsync(user.ChatId,
+                    text: $"<b>{timestamp.Value.AddHours(user.UtcDifference)}</b>: {record.GetValue()}",
+                    parseMode: ParseMode.Html);
+
+                if (--count == 0)
                     break;
-                }
             }
         }
-        return new ReadOnlyCollection<string>(logs);
     }
-
-    private InfluxDBClient CreateDbClient() => InfluxDBClientFactory.Create("http://localhost:8086", _token);
 }

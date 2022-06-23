@@ -12,5 +12,5 @@ public interface ILoggerAdapter
 
     void Log(long chatId, string message, params object?[] args);
 
-    Task<IReadOnlyCollection<string>> ReadLogsAsync(int count, int userUtcDiff);
+    Task ReadLogsToBotAsync(int count, CommandParameters parameters);
 }
