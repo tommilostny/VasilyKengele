@@ -1,24 +1,31 @@
 #!/bin/bash
+
+if [[ whoami != root ]]
+then
+	echo "Run this script as root like this: sudo ./VKServiceManager.sh"
+	exit 1
+fi
+
 HOME_FOLDER=/home/pi
 VK_FOLDER=$HOME_FOLDER/VasilyKengele
 DOTNET=$HOME_FOLDER/.dotnet/dotnet
 
 compileVK()
 {
-	echo "Compiling Vasily Kengele..."
+	echo "\nCompiling Vasily Kengele..."
 	$DOTNET publish -c Release $VK_FOLDER/src/VasilyKengele.csproj
 }
 
 startVK()
 {
-	echo "Starting and enabling the service on boot."
+	echo "\nStarting and enabling the service on boot."
 	systemctl enable VasilyKengele.service
 	systemctl start VasilyKengele.service
 }
 
 stopVK()
 {
-	echo "Stopping and disabling the service."
+	echo "\nStopping and disabling the service."
 	systemctl stop VasilyKengele.service
 	systemctl disable VasilyKengele.service
 }
