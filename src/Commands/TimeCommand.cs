@@ -1,5 +1,10 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// Used to set the registered user time zone by selecting their current time.
+/// Time zone information is needed so the user gets their 5 AM notification at the correct time.
+/// </summary>
+/// <remarks>Command string: <see cref="IVKBotCommand.Time"/></remarks>
 public class TimeCommand : IVKBotCommand
 {
     private readonly string? _hourArg;

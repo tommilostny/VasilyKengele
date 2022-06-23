@@ -1,5 +1,9 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// Loads all available commands and provides helpful information for each of them.
+/// </summary>
+/// <remarks>Command string: <see cref="IVKBotCommand.Help"/></remarks>
 public class HelpCommand : AuthenticatedCommandBase, IVKBotCommand
 {
     public HelpCommand(IConfiguration configuration) : base(configuration) { }
@@ -17,6 +21,10 @@ public class HelpCommand : AuthenticatedCommandBase, IVKBotCommand
             cancellationToken: parameters.CancellationToken);
     }
 
+    /// <summary>
+    /// Iterator through all command constants defined in <see cref="IVKBotCommand"/>.
+    /// </summary>
+    /// <param name="userChatId">Current user chat ID that is used to filter out commands available only to the main chat ID.</param>
     private IEnumerable<string> GetAllCommands(long userChatId)
     {
         yield return IVKBotCommand.Start;
@@ -34,6 +42,9 @@ public class HelpCommand : AuthenticatedCommandBase, IVKBotCommand
         }
     }
 
+    /// <summary>
+    /// Dictionary that contains helpful information for all available commands.
+    /// </summary>
     private static ReadOnlyDictionary<string, string> HelpStrings { get; } = new(new Dictionary<string, string>
     {
         { IVKBotCommand.Start, $"Start receiving messages at 5 o'clock." },

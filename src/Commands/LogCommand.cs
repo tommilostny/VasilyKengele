@@ -1,5 +1,10 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// Allows the bot owner to read stored logs directly from the chat bot.
+/// Used by the user specified by the <see cref="AuthenticatedCommandBase.MainChatId"/>.
+/// </summary>
+/// <remarks>Command string: <see cref="IVKBotCommand.Log"/></remarks>
 public class LogCommand : AuthenticatedCommandBase, IVKBotCommand
 {
     private readonly ILoggerAdapter _logger;

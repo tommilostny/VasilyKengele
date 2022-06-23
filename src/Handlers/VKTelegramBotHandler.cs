@@ -10,10 +10,6 @@ public class VKTelegramBotHandler
     private readonly IConfiguration _configuration;
     private readonly BotCommandFactory _commandFactory;
 
-    /// <summary>
-    /// Initializes <see cref="VKTelegramBotHandler"/> with user entities repository.
-    /// </summary>
-    /// <param name="usersRepository"><seealso cref="VKBotUsersRepository"/>.</param>
     public VKTelegramBotHandler(VKBotUsersRepository usersRepository,
                                 ILoggerAdapter loggerAdapter,
                                 IConfiguration configuration,
@@ -90,15 +86,23 @@ public class VKTelegramBotHandler
         var selectedHour = update.CallbackQuery.Data;
         if (userExists)
         {
+            //Path 1: User exists and hour number argument from button is given.
             if (selectedHour is not null)
             {
                 var parameters = new CommandParameters(botClient, _usersRepository, user, cancellationToken);
                 await new TimeCommand(selectedHour).ExecuteAsync(parameters);
             }
-            else await HandleUnknownCommandAsync(botClient, user.ChatId, cancellationToken);
+            //Path 2: Something went wrong and button data is null.
+            else
+            {
+                await HandleUnknownCommandAsync(botClient, user.ChatId, cancellationToken);
+            }
         }
-        else await HandleUnknownUserAsync(botClient, user, cancellationToken);
-
+        //Path 3: User does not exist, prompt them to use /start to register first.
+        else
+        {
+            await HandleUnknownUserAsync(botClient, user, cancellationToken);
+        }
         _logger.Log(chatId, "Received /time response '{0}' message from {1} ({2}, {3}).", selectedHour, fullname, username, chatId);
     }
 

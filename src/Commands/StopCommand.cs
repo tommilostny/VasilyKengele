@@ -1,5 +1,9 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// Disables the bot notifications at 5 AM. User data remain stored in the repository and are still available for future use.
+/// </summary>
+/// <remarks>Command string: <see cref="IVKBotCommand.Stop"/></remarks>
 public class StopCommand : IVKBotCommand
 {
     public async Task ExecuteAsync(CommandParameters parameters)

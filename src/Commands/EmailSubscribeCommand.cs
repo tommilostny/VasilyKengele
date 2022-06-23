@@ -1,5 +1,9 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// Stores given email address to the calling users record in the repository.
+/// </summary>
+/// <remarks>Command string: <see cref="IVKBotCommand.EmailSubscribe"/></remarks>
 public class EmailSubscribeCommand : IVKBotCommand
 {
     private readonly string _emailArg;
@@ -40,7 +44,7 @@ public class EmailSubscribeCommand : IVKBotCommand
             }
             try
             {
-                var addr = new System.Net.Mail.MailAddress(_emailArg);
+                var addr = new MailAddress(_emailArg);
                 return addr.Address == _emailArg;
             }
             catch

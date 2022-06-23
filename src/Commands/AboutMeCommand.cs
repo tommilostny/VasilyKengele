@@ -1,5 +1,9 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// Loads and presents stored current user info from the repository.
+/// </summary>
+/// /// <remarks>Command string: <see cref="IVKBotCommand.AboutMe"/></remarks>
 public class AboutMeCommand : IVKBotCommand
 {
     public async Task ExecuteAsync(CommandParameters parameters)

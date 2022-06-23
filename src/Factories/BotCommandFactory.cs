@@ -1,5 +1,8 @@
 namespace VasilyKengele.Factories;
 
+/// <summary>
+/// Used to create an instance of <see cref="IVKBotCommand"/> based on chat bot text message input.
+/// </summary>
 public class BotCommandFactory
 {
     private readonly IConfiguration _configuration;
@@ -11,9 +14,9 @@ public class BotCommandFactory
         _logger = logger;
     }
 
-    public IVKBotCommand MatchCommand(string commandName)
+    public IVKBotCommand MatchCommand(string command)
     {
-        return commandName switch
+        return command switch
         {
             IVKBotCommand.Start => new StartCommand(),
             IVKBotCommand.Stop => new StopCommand(),
@@ -24,13 +27,13 @@ public class BotCommandFactory
             IVKBotCommand.EmailUnsubscribe => new EmailUnsubscribeCommand(),
             IVKBotCommand.Help => new HelpCommand(_configuration),
 
-            var timeStr when commandName.StartsWith(IVKBotCommand.Time)
+            var timeStr when command.StartsWith(IVKBotCommand.Time)
                 => new TimeCommand(CommandArg(timeStr)),
 
-            var emailStr when commandName.StartsWith(IVKBotCommand.EmailSubscribe)
+            var emailStr when command.StartsWith(IVKBotCommand.EmailSubscribe)
                 => new EmailSubscribeCommand(CommandArg(emailStr)),
 
-            var logStr when commandName.StartsWith(IVKBotCommand.Log)
+            var logStr when command.StartsWith(IVKBotCommand.Log)
                 => new LogCommand(_configuration, _logger, Convert.ToInt32(CommandArg(logStr))),
 
             _ => throw new InvalidOperationException()

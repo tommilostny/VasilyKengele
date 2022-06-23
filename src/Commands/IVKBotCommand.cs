@@ -1,7 +1,15 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// Blueprint for a Telegram bot command that can be executed.
+/// Also defines constants that are used as the commands in the chat bot.
+/// </summary>
 public interface IVKBotCommand
 {
+    /// <summary>
+    /// Commands implemented behavior.
+    /// </summary>
+    /// <param name="parameters">Basic context of the Telegram bot that the command can use.</param>
     Task ExecuteAsync(CommandParameters parameters);
 
     const string Start = "/start";
@@ -16,6 +24,13 @@ public interface IVKBotCommand
     const string Log = "/log";
 }
 
+/// <summary>
+/// Wrapper for commonly used command parameters that maintain Telegram bots context.
+/// </summary>
+/// <param name="BotClient">Telegram bot client to send a response.</param>
+/// <param name="UsersRepository">Users repository to read or update saved users.</param>
+/// <param name="User">Current user that called the command.</param>
+/// <param name="CancellationToken">Async task cancellation token.</param>
 public record CommandParameters(ITelegramBotClient BotClient,
                                 VKBotUsersRepository UsersRepository,
                                 VKBotUserEntity User,

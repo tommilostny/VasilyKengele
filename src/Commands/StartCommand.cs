@@ -1,5 +1,9 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// The bot entry command. Used to register the user.
+/// </summary>
+/// <remarks>Command string: <see cref="IVKBotCommand.Start"/></remarks>
 public class StartCommand : IVKBotCommand
 {
     public async Task ExecuteAsync(CommandParameters parameters)

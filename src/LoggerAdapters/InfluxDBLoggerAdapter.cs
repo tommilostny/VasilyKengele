@@ -1,7 +1,8 @@
-﻿using Telegram.Bot.Types;
+﻿namespace VasilyKengele.LoggerAdapters;
 
-namespace VasilyKengele.LoggerAdapters;
-
+/// <summary>
+/// Implementation of the logger adapter that stores logs in the InfluxDB time series oriented database.
+/// </summary>
 public class InfluxDBLoggerAdapter : ILoggerAdapter
 {
     private readonly ILogger<InfluxDBLoggerAdapter> _logger;

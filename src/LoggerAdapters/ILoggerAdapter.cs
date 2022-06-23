@@ -1,5 +1,9 @@
 ﻿namespace VasilyKengele.LoggerAdapters;
 
+/// <summary>
+/// Interface that wraps arount a logger to store user actions with the bot.
+/// Also allows the ability to read the stored logs and send them directly to the Telegram bot as text messages.
+/// </summary>
 public interface ILoggerAdapter
 {
     void Log(long chatId, string message);

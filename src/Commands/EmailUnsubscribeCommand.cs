@@ -1,5 +1,9 @@
 ﻿namespace VasilyKengele.Commands;
 
+/// <summary>
+/// Deletes the users email from their record stored in the repository.
+/// </summary>
+/// <remarks>Command string: <see cref="IVKBotCommand.EmailUnsubscribe"/></remarks>
 public class EmailUnsubscribeCommand : IVKBotCommand
 {
     public async Task ExecuteAsync(CommandParameters parameters)
