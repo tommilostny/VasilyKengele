@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [[ whoami != root ]]
+if [ "$EUID" -ne 0 ]
 then
 	echo "Run this script as root like this: sudo ./VKServiceManager.sh"
-	exit 1
+	exit
 fi
 
 HOME_FOLDER=/home/pi
