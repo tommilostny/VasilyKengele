@@ -12,22 +12,28 @@ DOTNET=$HOME_FOLDER/.dotnet/dotnet
 
 compileVK()
 {
-	printf "\nCompiling Vasily Kengele..."
+	printf "\nCompiling Vasily Kengele...\n"
 	$DOTNET publish -c Release $VK_FOLDER/src/VasilyKengele.csproj
 }
 
 startVK()
 {
-	printf "\nStarting and enabling the service on boot."
+	printf "\nStarting and enabling the service on boot...\n"
 	systemctl enable VasilyKengele.service
 	systemctl start VasilyKengele.service
 }
 
 stopVK()
 {
-	printf "\nStopping and disabling the service."
+	printf "\nStopping and disabling the service...\n"
 	systemctl stop VasilyKengele.service
 	systemctl disable VasilyKengele.service
+}
+
+pullFromGit()
+{
+	printf "\nPulling from git repository...\n"
+	git pull
 }
 
 # Copy only if service file does not exist already or is updated.
@@ -60,7 +66,7 @@ then
 elif [[ $action == "update" ]]
 then
 	stopVK
-	git pull
+	pullFromGit
 	compileVK
 	startVK
 
