@@ -26,10 +26,10 @@ builder.ConfigureServices((context, services) =>
         .AddSmtpSender(new SmtpClient
         {
             Host = context.Configuration["Email:Smtp:Host"],
+            Port = Convert.ToInt32(context.Configuration["Email:Smtp:Port"]),
             UseDefaultCredentials = false,
             Credentials = new NetworkCredential(context.Configuration["Email:Smtp:Username"],
-                                                context.Configuration["Email:Smtp:Password"]),
-            Port = Convert.ToInt32(context.Configuration["Email:Smtp:Port"])
+                                                context.Configuration["Email:Smtp:Password"])
         });
 });
 

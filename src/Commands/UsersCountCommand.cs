@@ -5,8 +5,12 @@
 /// Gives the amount of users that currently receive and don't receive their notifications at 5 AM.
 /// </summary>
 /// <remarks>Command string: <see cref="IVKBotCommand.UsersCount"/></remarks>
-public class UsersCountCommand : IVKBotCommand
+public class UsersCountCommand : AuthenticatedCommandBase, IVKBotCommand
 {
+    public UsersCountCommand(IConfiguration configuration) : base(configuration)
+    {
+    }
+
     public async Task ExecuteAsync(CommandParameters parameters)
     {
         var users = parameters.UsersRepository.GetAll();
@@ -24,5 +28,15 @@ public class UsersCountCommand : IVKBotCommand
             text: messageBuilder.ToString(),
             parseMode: ParseMode.Html,
             cancellationToken: parameters.CancellationToken);
+
+        if (parameters.User.ChatId == MainChatId)
+        {
+            foreach (var userRecord in users)
+            {
+                await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId,
+                    text: JsonConvert.SerializeObject(userRecord),
+                    cancellationToken: parameters.CancellationToken);
+            }
+        }
     }
 }

@@ -20,7 +20,7 @@ public class BotCommandFactory
         {
             IVKBotCommand.Start => new StartCommand(),
             IVKBotCommand.Stop => new StopCommand(),
-            IVKBotCommand.UsersCount => new UsersCountCommand(),
+            IVKBotCommand.UsersCount => new UsersCountCommand(_configuration),
             IVKBotCommand.AboutMe => new AboutMeCommand(),
             IVKBotCommand.DeleteMe => new DeleteMeCommand(),
             IVKBotCommand.Time => new TimeCommand(),
