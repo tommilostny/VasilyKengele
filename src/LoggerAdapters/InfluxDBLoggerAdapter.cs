@@ -80,10 +80,12 @@ public class InfluxDBLoggerAdapter : ILoggerAdapter
         }
         var queryBuilder = new StringBuilder()
             .Append($"from(bucket: \"{_bucket}\")")
-            .Append(" |> range(start: -30d)")
+            .Append(" |> range(start: -14d)")
             .Append(" |> filter(fn: (r) => r[\"_measurement\"] == \"vkLog\")")
             .Append(" |> filter(fn: (r) => r[\"_field\"] == \"message\")")
-            .Append(" |> filter(fn: (r) => r[\"chatId\"] != \"-1\")");
+            .Append(" |> filter(fn: (r) => r[\"chatId\"] != \"-1\")")
+            .Append(" |> group()")
+            .Append(" |> sort(columns: [\"_time\"])");
 
         using var client = CreateDbClient();
         var tables = await client.GetQueryApi().QueryAsync(queryBuilder.ToString(), _organization);
