@@ -1,33 +1,39 @@
-// Configure services.
-var builder = WebApplication.CreateBuilder(args);
+﻿// Configure services.
+var builder = Host.CreateDefaultBuilder(args);
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Services.AddSingleton<ILoggerAdapter, InfluxDBLoggerAdapter>();
-
-builder.Services.AddSingleton<VKTelegramBotHandler>();
-builder.Services.AddSingleton<VKBotUsersRepository>();
-builder.Services.AddTransient<VKBotInvocable>();
-builder.Services.AddSingleton<BotCommandFactory>();
-
-builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ =>
+builder.ConfigureServices((context, services) =>
 {
-    return new(builder.Configuration["TelegramBotToken"]);
-});
-
-builder.Services.AddScheduler();
-
-builder.Services
-    .AddFluentEmail(builder.Configuration["Email:From"])
-    .AddSmtpSender(new SmtpClient
+    services.AddLogging(logging =>
     {
-        Host = builder.Configuration["Email:Smtp:Host"],
-        UseDefaultCredentials = false,
-        Credentials = new NetworkCredential(builder.Configuration["Email:Smtp:Username"], builder.Configuration["Email:Smtp:Password"]),
-        Port = Convert.ToInt32(builder.Configuration["Email:Smtp:Port"])
+        logging.ClearProviders();
+        logging.AddConsole();
+    });
+    services.AddSingleton<ILoggerAdapter, InfluxDBLoggerAdapter>();
+
+    services.AddSingleton<VKTelegramBotHandler>();
+    services.AddSingleton<VKBotUsersRepository>();
+    services.AddTransient<VKBotInvocable>();
+    services.AddSingleton<BotCommandFactory>();
+
+    services.AddScheduler();
+
+    services.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ =>
+    {
+        return new(context.Configuration["TelegramBotToken"]);
     });
 
-// Build the ASP.NET Core application.
+    services.AddFluentEmail(context.Configuration["Email:From"])
+        .AddSmtpSender(new SmtpClient
+        {
+            Host = context.Configuration["Email:Smtp:Host"],
+            UseDefaultCredentials = false,
+            Credentials = new NetworkCredential(context.Configuration["Email:Smtp:Username"],
+                                                context.Configuration["Email:Smtp:Password"]),
+            Port = Convert.ToInt32(context.Configuration["Email:Smtp:Port"])
+        });
+});
+
+// Build the .NET application.
 var app = builder.Build();
 
 // Configure Telegram bot
@@ -47,13 +53,13 @@ var botReceiverOptions = new ReceiverOptions
 {
     AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery }
 };
-using var botCancellationTokenSource = new CancellationTokenSource();
+using var botCTS = new CancellationTokenSource();
 
 // Start Telegram bot listening.
 botClient.StartReceiving(botHandler.HandleUpdateAsync,
                          botHandler.HandlePollingErrorAsync,
                          botReceiverOptions,
-                         botCancellationTokenSource.Token
+                         botCTS.Token
 );
 var me = await botClient.GetMeAsync();
 Console.WriteLine($"Start of Telegram Bot listening for @{me.Username}");
@@ -69,7 +75,7 @@ app.Services.UseScheduler(scheduler =>
 });
 
 // Start the app.
-app.Run("http://localhost:5234");
+await app.RunAsync(botCTS.Token);
 
-// Send cancellation request to stop bot
-botCancellationTokenSource.Cancel();
+// Send cancellation request to stop bot.
+botCTS.Cancel();

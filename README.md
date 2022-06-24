@@ -9,7 +9,7 @@ Optionally this bot provides a possibility to subscribe to e-mail notification a
 <img src="img/vasily.jpg" alt="Vasily Kengele photo" width="166"/>
 
 ## Install your own Telegram bot
-- Install .NET 6.0 with ASP.NET Core 6.0 to use ``dotnet`` CLI.
+- Install .NET 6.0 to use ``dotnet`` CLI.
 - Go to the source directory (**``cd src``**).
 - Set the Telegram bot token in [appsettings.json](VasilyKengele/appsettings.json).
 - *Optional*: logging to **InfluxDB** (put credentials to appsettings.json and set *LoggingToDbEnabled* to *true*).
