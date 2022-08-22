@@ -55,8 +55,19 @@ public class VKBotInvocable : IInvocable
 
     private async Task SendToTelegramBotAsync(VKBotUserEntity user, string messageText)
     {
-        var message = await _botClient.SendTextMessageAsync(user.ChatId, messageText);
-        _logger.Log(user.ChatId, "Sent '{0}' to: {1}", message.Text, message.Chat.Id);
+        byte tries = 0;
+        do try
+        {
+            var message = await _botClient.SendTextMessageAsync(user.ChatId, messageText);
+            _logger.Log(user.ChatId, "Sent '{0}' to: {1}", message.Text, message.Chat.Id);
+            break;
+        }
+        catch
+        {
+            tries++;
+        }
+        while (tries < 3);
+        _logger.Log(user.ChatId, "Error sending message to Telegram chat ({0}).", user.ChatId);
     }
 
     private async Task SendToEmailAsync(VKBotUserEntity user, string messageText)
