@@ -43,7 +43,7 @@ public class VKBotInvocable : IInvocable
 
 #if !DEBUG //Release mode: check if it is the correct 5 AM time. Debug mode: skip this check.
             if (userTime.Hour != 5)
-                continue;
+                return;
 #endif
             //Create message and send it.
             var messageText = $"Hey {user.Name}, it's {userTime}. Time to wake up!";
