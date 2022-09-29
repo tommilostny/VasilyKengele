@@ -34,31 +34,30 @@ public class VKBotInvocable : IInvocable
     /// </summary>
     public async Task Invoke()
     {
-        var utcNow = DateTime.UtcNow;
-        foreach (var user in _usersRepository.GetAll())
+        await Parallel.ForEachAsync(_usersRepository.GetAll(), async (user, token) =>
         {
             if (!user.ReceiveWakeUps)
-                continue;
+                return;
 
-            var userTime = utcNow.AddHours(user.UtcDifference);
+            var userTime = DateTime.UtcNow.AddHours(user.UtcDifference);
 
 #if !DEBUG //Release mode: check if it is the correct 5 AM time. Debug mode: skip this check.
             if (userTime.Hour != 5)
                 continue;
 #endif
             //Create message and send it.
-            var messageText = $"Hey {user.Name}, it's {userTime}. Time to wake up!";      
-            await SendToTelegramBotAsync(user, messageText);
-            await SendToEmailAsync(user, messageText);
-        }
+            var messageText = $"Hey {user.Name}, it's {userTime}. Time to wake up!";
+            await SendToTelegramBotAsync(user, messageText, token);
+            await SendToEmailAsync(user, messageText, token);
+        });
     }
 
-    private async Task SendToTelegramBotAsync(VKBotUserEntity user, string messageText)
+    private async Task SendToTelegramBotAsync(VKBotUserEntity user, string messageText, CancellationToken token)
     {
         byte tries = 0;
         do try
         {
-            var message = await _botClient.SendTextMessageAsync(user.ChatId, messageText);
+            var message = await _botClient.SendTextMessageAsync(user.ChatId, messageText, cancellationToken: token);
             _logger.Log(user.ChatId, "Sent '{0}' to: {1}", message.Text, message.Chat.Id);
             break;
         }
@@ -70,7 +69,7 @@ public class VKBotInvocable : IInvocable
         _logger.Log(user.ChatId, "Error sending message to Telegram chat ({0}).", user.ChatId);
     }
 
-    private async Task SendToEmailAsync(VKBotUserEntity user, string messageText)
+    private async Task SendToEmailAsync(VKBotUserEntity user, string messageText, CancellationToken token)
     {
         //Send message to e-mail if user has it setup.
         //Or skip if e-mail sending is not enabled in configuration.
@@ -82,7 +81,7 @@ public class VKBotInvocable : IInvocable
             .Subject("Wake up with Vasily Kengele")
             .Body(messageText);
 
-        var emailResult = await email.SendAsync();
+        var emailResult = await email.SendAsync(token);
         if (emailResult.Successful)
         {
             _logger.Log(user.ChatId, "Sent e-mail '{0}' to {1}", messageText, user.Email);
