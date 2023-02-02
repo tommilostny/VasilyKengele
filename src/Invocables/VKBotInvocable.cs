@@ -58,7 +58,7 @@ public class VKBotInvocable : IInvocable
         // (i.e. there is no user in a time zone where it is currently 5 AM).
         var completitionTask = new Lazy<Task<CompletionCreateResponse>>(() =>
         {
-            return _openAIService.Completions.CreateCompletion(new CompletionCreateRequest
+            return _openAIService?.Completions.CreateCompletion(new CompletionCreateRequest
             {
                 Prompt = $"{NextQuoteAdjective()} bird quote for the day {DateTime.UtcNow}:",
                 Model = Models.TextDavinciV3,
