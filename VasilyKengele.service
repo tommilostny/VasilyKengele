@@ -3,7 +3,7 @@ Description="Wake up with Vasily Kengele!"
 
 [Service]
 WorkingDirectory=/home/pi/VasilyKengele/src
-ExecStart=/home/pi/.dotnet/dotnet /home/pi/VasilyKengele/src/bin/Release/net6.0/publish/VasilyKengele.dll
+ExecStart=/home/pi/.dotnet/dotnet /home/pi/VasilyKengele/src/bin/Release/net7.0/publish/VasilyKengele.dll
 Restart=always
 # Restart service after 10 seconds if the dotnet service crashes:
 RestartSec=10
