@@ -9,7 +9,7 @@ public class VKBotInvocable : IInvocable
     private readonly VKBotUsersRepository _usersRepository;
     private readonly ILoggerAdapter _logger;
     private readonly IFluentEmailFactory? _fluentEmailFactory;
-    private readonly IOpenAIService _openAIService;
+    private readonly IOpenAIService? _openAIService;
 
     private readonly Random _random = new();
     private readonly string[] _adjectives = new[]
@@ -38,10 +38,13 @@ public class VKBotInvocable : IInvocable
         {
             _fluentEmailFactory = fluentEmailFactory;
         }
+        if (Convert.ToBoolean(configuration["OpenAI:Enabled"]))
+        {
+            _openAIService = openAIService;
+        }
         _botClient = botClient;
         _usersRepository = usersRepository;
         _logger = loggerAdapter;
-        _openAIService = openAIService;
     }
 
     /// <summary>
@@ -77,13 +80,14 @@ public class VKBotInvocable : IInvocable
 #endif
             //Create message and send it.
             var messageTextBuilder = new StringBuilder($"Hey {user.Name}, it's {userTime}. Time to wake up!");
-
-            var completion = await completitionTask.Value;
-            if (completion.Successful)
+            if (_openAIService is not null)
             {
-                messageTextBuilder.Append(completion.Choices.First().Text);
+                var completion = await completitionTask.Value;
+                if (completion.Successful)
+                {
+                    messageTextBuilder.Append(completion.Choices.First().Text);
+                }
             }
-
             var messageText = messageTextBuilder.ToString();
             await SendToTelegramBotAsync(user, messageText, token);
             await SendToEmailAsync(user, messageText, token);
