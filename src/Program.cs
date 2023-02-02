@@ -19,24 +19,29 @@ builder.ConfigureServices((context, services) =>
 
     services.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ =>
     {
-        return new(context.Configuration["TelegramBotToken"]);
+        return new(context.Configuration["TelegramBotToken"] ?? string.Empty);
     });
 
     services.AddFluentEmail(context.Configuration["Email:From"])
         .AddSmtpSender(new SmtpClient
         {
-            Host = context.Configuration["Email:Smtp:Host"],
+            Host = context.Configuration["Email:Smtp:Host"] ?? string.Empty,
             Port = Convert.ToInt32(context.Configuration["Email:Smtp:Port"]),
             UseDefaultCredentials = false,
             Credentials = new NetworkCredential(context.Configuration["Email:Smtp:Username"],
                                                 context.Configuration["Email:Smtp:Password"])
         });
+
+    services.AddOpenAIService(settings =>
+    {
+        settings.ApiKey = context.Configuration["OpenAI:ApiKey"] ?? string.Empty;
+    });
 });
 
 // Build the .NET application.
 var app = builder.Build();
 
-// Configure Telegram bot
+// Configure Telegram bot.
 var botHandler = app.Services.GetService<VKTelegramBotHandler>();
 if (botHandler is null)
 {

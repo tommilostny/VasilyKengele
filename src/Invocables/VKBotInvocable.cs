@@ -9,6 +9,20 @@ public class VKBotInvocable : IInvocable
     private readonly VKBotUsersRepository _usersRepository;
     private readonly ILoggerAdapter _logger;
     private readonly IFluentEmailFactory? _fluentEmailFactory;
+    private readonly IOpenAIService _openAIService;
+
+    private readonly Random _random = new();
+    private readonly string[] _adjectives = new[]
+    {
+        "Insightful", "Enlightening", "Inspirational",
+        "Poignant", "Intriguing", "Uplifting", "Provocative",
+        "Thought-provoking", "Stimulating", "Remarkable",
+        "Funny", "Humorous", "Sad", "Anarchist", "Rebelious",
+        "Compelling", "Stimulating", "Profound", "Wise",
+        "Affecting", "Moving", "Encouraging", "Pertinent",
+        "Relevant", "Irrelevant", "Diverting", "Innovative",
+        "Gratifying", "Bold", "Edifying", "Heartwarming",
+    };
 
     /// <summary>
     /// Loads the Telegram bot token and stores a reference to the users repository.
@@ -17,7 +31,8 @@ public class VKBotInvocable : IInvocable
                           VKBotUsersRepository usersRepository,
                           ILoggerAdapter loggerAdapter,
                           IFluentEmailFactory fluentEmailFactory,
-                          IConfiguration configuration)
+                          IConfiguration configuration,
+                          IOpenAIService openAIService)
     {
         if (Convert.ToBoolean(configuration["Email:Enabled"]))
         {
@@ -26,6 +41,7 @@ public class VKBotInvocable : IInvocable
         _botClient = botClient;
         _usersRepository = usersRepository;
         _logger = loggerAdapter;
+        _openAIService = openAIService;
     }
 
     /// <summary>
@@ -34,6 +50,20 @@ public class VKBotInvocable : IInvocable
     /// </summary>
     public async Task Invoke()
     {
+        // Initialize a lazy task that call Open AI API to generate a bird quote.
+        // The API is not going to be called if no message is about to be sent
+        // (i.e. there is no user in a time zone where it is currently 5 AM).
+        var completitionTask = new Lazy<Task<CompletionCreateResponse>>(() =>
+        {
+            return _openAIService.Completions.CreateCompletion(new CompletionCreateRequest
+            {
+                Prompt = $"{NextQuoteAdjective()} bird quote for the day {DateTime.UtcNow}:",
+                Model = Models.TextDavinciV3,
+                Temperature = _random.NextSingle(),
+                MaxTokens = 300
+            });
+        });
+        // With AI quote ready, create a wake up message for each user and send to all.
         await Parallel.ForEachAsync(_usersRepository.GetAll(), async (user, token) =>
         {
             if (!user.ReceiveWakeUps)
@@ -46,10 +76,23 @@ public class VKBotInvocable : IInvocable
                 return;
 #endif
             //Create message and send it.
-            var messageText = $"Hey {user.Name}, it's {userTime}. Time to wake up!";
+            var messageTextBuilder = new StringBuilder($"Hey {user.Name}, it's {userTime}. Time to wake up!");
+
+            var completion = await completitionTask.Value;
+            if (completion.Successful)
+            {
+                messageTextBuilder.Append(completion.Choices.First().Text);
+            }
+
+            var messageText = messageTextBuilder.ToString();
             await SendToTelegramBotAsync(user, messageText, token);
             await SendToEmailAsync(user, messageText, token);
         });
+    }
+
+    private string NextQuoteAdjective()
+    {
+        return _adjectives[_random.Next(0, _adjectives.Length)];
     }
 
     private async Task SendToTelegramBotAsync(VKBotUserEntity user, string messageText, CancellationToken token)
@@ -59,7 +102,7 @@ public class VKBotInvocable : IInvocable
         {
             var message = await _botClient.SendTextMessageAsync(user.ChatId, messageText, cancellationToken: token);
             _logger.Log(user.ChatId, "Sent '{0}' to: {1}", message.Text, message.Chat.Id);
-            break;
+            return;
         }
         catch
         {

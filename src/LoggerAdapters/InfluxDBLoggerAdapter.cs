@@ -70,7 +70,7 @@ public class InfluxDBLoggerAdapter : ILoggerAdapter
         }
     }
 
-    private InfluxDBClient CreateDbClient() => InfluxDBClientFactory.Create("http://localhost:8086", _token);
+    private InfluxDBClient CreateDbClient() => new(url: "http://localhost:8086", _token);
 
     public async Task ReadLogsToBotAsync(int count, CommandParameters parameters)
     {

@@ -14,6 +14,12 @@ global using Microsoft.Extensions.Logging;
 
 global using Newtonsoft.Json;
 
+global using OpenAI.GPT3.Extensions;
+global using OpenAI.GPT3.Interfaces;
+global using OpenAI.GPT3.ObjectModels;
+global using OpenAI.GPT3.ObjectModels.RequestModels;
+global using OpenAI.GPT3.ObjectModels.ResponseModels;
+
 global using System.Collections.ObjectModel;
 global using System.IO.Compression;
 global using System.Net;
