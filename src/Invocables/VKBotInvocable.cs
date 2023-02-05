@@ -53,20 +53,10 @@ public class VKBotInvocable : IInvocable
     /// </summary>
     public async Task Invoke()
     {
-        // Initialize a lazy task that call Open AI API to generate a bird quote.
-        // The API is not going to be called if no message is about to be sent
-        // (i.e. there is no user in a time zone where it is currently 5 AM).
-        var completitionTask = new Lazy<Task<CompletionCreateResponse>>(() =>
-        {
-            return _openAIService!.Completions.CreateCompletion(new CompletionCreateRequest
-            {
-                Prompt = $"{NextQuoteAdjective()} bird quote for the day {DateTime.UtcNow}:",
-                Model = Models.TextDavinciV3,
-                Temperature = _random.NextSingle(),
-                MaxTokens = 300
-            });
-        });
-        // With AI quote ready, create a wake up message for each user and send to all.
+        // Initialize a lazy task that'll call OpenAI API if needed once for all users.
+        var quoteTask = new Lazy<Task<string>>(GenerateQuoteAsync); 
+
+        // Create a wake up message for each user and send to all.
         await Parallel.ForEachAsync(_usersRepository.GetAll(), async (user, token) =>
         {
             if (!user.ReceiveWakeUps)
@@ -79,24 +69,43 @@ public class VKBotInvocable : IInvocable
                 return;
 #endif
             //Create message and send it.
-            var messageTextBuilder = new StringBuilder($"Hey {user.Name}, it's {userTime}. Time to wake up!");
-            if (_openAIService is not null)
-            {
-                var completion = await completitionTask.Value;
-                if (completion.Successful)
-                {
-                    messageTextBuilder.Append(completion.Choices.First().Text);
-                }
-            }
-            var messageText = messageTextBuilder.ToString();
+            var messageBuilder = new StringBuilder("Hey ")
+                .Append(user.Name)
+                .Append(", it's ")
+                .Append(userTime)
+                .Append(". Time to wake up!")
+                .Append(await quoteTask.Value);
+
+            var messageText = messageBuilder.ToString();
             await SendToTelegramBotAsync(user, messageText, token);
             await SendToEmailAsync(user, messageText, token);
         });
     }
 
-    private string NextQuoteAdjective()
+    /// <summary>
+    /// Task that calls Open AI API to generate a bird quote.
+    /// The API is not going to be called if no message is about to be sent
+    /// (i.e. there is no user in a time zone where it is currently 5 AM).
+    /// </summary>
+    private async Task<string> GenerateQuoteAsync()
     {
-        return _adjectives[_random.Next(0, _adjectives.Length)];
+        if (_openAIService is not null)
+        {
+            var nextAdjective = _adjectives[_random.Next(0, _adjectives.Length)];
+        
+            var completion = await _openAIService.Completions.CreateCompletion(new()
+            {
+                Prompt = $"{nextAdjective} bird quote for the day {DateTime.UtcNow}:",
+                Model = Models.TextDavinciV3,
+                Temperature = _random.NextSingle(),
+                MaxTokens = 300
+            });
+            if (completion.Successful)
+            {
+                return completion.Choices.First().Text;
+            }
+        }
+        return string.Empty;
     }
 
     private async Task SendToTelegramBotAsync(VKBotUserEntity user, string messageText, CancellationToken token)
