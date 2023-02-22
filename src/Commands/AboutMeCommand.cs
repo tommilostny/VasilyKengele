@@ -1,4 +1,6 @@
-﻿namespace VasilyKengele.Commands;
+﻿using System.Reflection;
+
+namespace VasilyKengele.Commands;
 
 /// <summary>
 /// Loads and presents stored current user info from the repository.
@@ -13,8 +15,17 @@ public class AboutMeCommand : IVKBotCommand
         
         if (exists)
         {
+            var messageBuilder = new StringBuilder("This is all Vasily Kengele knows about you:\n\n");
+            var type = stored.GetType();
+            var properties = type.GetProperties();
+
+            foreach (var prop in properties)
+            {
+                messageBuilder.AppendLine($"<b>{prop.Name}</b>: {prop.GetValue(stored)}");
+            }
             await parameters.BotClient.SendTextMessageAsync(user.ChatId,
-                text: JsonConvert.SerializeObject(stored),
+                text: messageBuilder.ToString(), //JsonConvert.SerializeObject(stored),
+                parseMode: ParseMode.Html,
                 cancellationToken: parameters.CancellationToken);
             return;
         }
