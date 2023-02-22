@@ -14,14 +14,14 @@ public class VKBotInvocable : IInvocable
     private readonly Random _random = new();
     private readonly string[] _adjectives = new[]
     {
-        "Insightful", "Enlightening", "Inspirational",
-        "Poignant", "Intriguing", "Uplifting", "Provocative",
+        "Insightful", "Enlightening", "Capitalist", "Socialist",
+        "Intriguing", "Uplifting", "Provocative", "Crazy",
         "Thought-provoking", "Stimulating", "Remarkable",
-        "Funny", "Humorous", "Sad", "Anarchist", "Rebelious",
-        "Compelling", "Stimulating", "Profound", "Wise",
+        "Funny", "Sad", "Anarchist", "Rebelious", "Stupid",
+        "Compelling", "Stimulating", "Profound", "Informal",
         "Affecting", "Moving", "Encouraging", "Pertinent",
-        "Relevant", "Irrelevant", "Diverting", "Innovative",
-        "Gratifying", "Bold", "Edifying", "Heartwarming",
+        "Irrelevant", "Diverting", "Innovative", "Idiotic",
+        "Gratifying", "Edifying", "Technical", "Programming"
     };
 
     /// <summary>
@@ -97,7 +97,7 @@ public class VKBotInvocable : IInvocable
             {
                 Prompt = $"{nextAdjective} bird quote for the day {DateTime.UtcNow}:",
                 Model = Models.TextDavinciV3,
-                Temperature = _random.NextSingle(),
+                Temperature = 1.0f,
                 MaxTokens = 300
             });
             if (completion.Successful)
