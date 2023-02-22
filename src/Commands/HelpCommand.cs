@@ -41,6 +41,7 @@ public class HelpCommand : AuthenticatedCommandBase, IVKBotCommand
         if (userChatId == MainChatId)
         {
             yield return IVKBotCommand.Log;
+            yield return IVKBotCommand.Kick;
         }
     }
 
@@ -58,6 +59,7 @@ public class HelpCommand : AuthenticatedCommandBase, IVKBotCommand
         { IVKBotCommand.EmailSubscribe, $"Subscribe to the e-mail wake up notifications as well. Message format: <code>{IVKBotCommand.EmailSubscribe} person@email.com</code>." },
         { IVKBotCommand.EmailUnsubscribe, "Remove your email from our repository." },
         { IVKBotCommand.Help, "Display this help." },
-        { IVKBotCommand.Log, $"Load logs from InfluxDB. Message format to get last 20 logs: <code>{IVKBotCommand.Log} 20</code>" }
+        { IVKBotCommand.Log, $"Load logs from InfluxDB. Message format to get last 20 logs: <code>{IVKBotCommand.Log} 20</code>" },
+        { IVKBotCommand.Kick, "Kick user specified by chat ID." }
     });
 }

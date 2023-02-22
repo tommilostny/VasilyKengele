@@ -124,6 +124,12 @@ public class VKBotUsersRepository
         return (new(chatId, fullname, username ?? string.Empty), false);
     }
 
+    public VKBotUserEntity? GetById(long chatId)
+    {
+        _users.TryGetValue(chatId, out var existingUser);
+        return existingUser;
+    }
+
     /// <summary>
     /// Serializes user entities collection and writes it to the compressed JSON file.
     /// </summary>

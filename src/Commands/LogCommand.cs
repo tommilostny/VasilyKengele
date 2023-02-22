@@ -18,10 +18,9 @@ public class LogCommand : AuthenticatedCommandBase, IVKBotCommand
 
     public async Task ExecuteAsync(CommandParameters parameters)
     {
-        if (parameters.User.ChatId != MainChatId)
+        if (parameters.User.ChatId == MainChatId)
         {
-            return;
+            await _logger.ReadLogsToBotAsync(_count, parameters);
         }
-        await _logger.ReadLogsToBotAsync(_count, parameters);
     }
 }

@@ -22,6 +22,7 @@ public interface IVKBotCommand
     const string EmailUnsubscribe = "/email_delete";
     const string Help = "/help";
     const string Log = "/log";
+    const string Kick = "/kick";
 }
 
 /// <summary>

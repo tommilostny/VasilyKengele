@@ -36,6 +36,9 @@ public class BotCommandFactory
             var logStr when command.StartsWith(IVKBotCommand.Log)
                 => new LogCommand(_configuration, _logger, Convert.ToInt32(CommandArg(logStr))),
 
+            var kickStr when command.StartsWith(IVKBotCommand.Kick)
+                => new KickCommand(_configuration, Convert.ToInt64(CommandArg(kickStr))),
+
             _ => throw new InvalidOperationException()
         };
     }
