@@ -34,7 +34,7 @@ public class VKBotInvocable : IInvocable
                           IConfiguration configuration,
                           IOpenAIService openAIService)
     {
-        if (Convert.ToBoolean(configuration["Email:Enabled"]))
+        if (!string.IsNullOrWhiteSpace(configuration["Email:From"]))
         {
             _fluentEmailFactory = fluentEmailFactory;
         }
