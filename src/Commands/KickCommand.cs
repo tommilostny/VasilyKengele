@@ -21,10 +21,18 @@ internal class KickCommand : AuthenticatedCommandBase, IVKBotCommand
                 await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId,
                     text: $"User '{user.Name}' with ID ({_chatId}) has been removed.",
                     cancellationToken: parameters.CancellationToken);
-
-                await parameters.BotClient.SendTextMessageAsync(_chatId,
-                    text: $"You have been removed from the Vasily Kengele system. If you really want to continue, you may restart with /start. Don't forget to correctly set the /time and refer to /help for instructions.",
-                    cancellationToken: parameters.CancellationToken);
+                try
+                {
+                    await parameters.BotClient.SendTextMessageAsync(_chatId,
+                        text: $"You have been removed from the Vasily Kengele system. If you really want to continue, you may restart with /start. Don't forget to correctly set the /time and refer to /help for instructions.",
+                        cancellationToken: parameters.CancellationToken);
+                }
+                catch
+                {
+                    await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId,
+                        text: $"Unable to send message to {_chatId}. This user probably does not exist anymore.",
+                        cancellationToken: parameters.CancellationToken);
+                }
                 return;
             }
             await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId,
