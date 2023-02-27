@@ -5,7 +5,11 @@
 /// </summary>
 public class VKBotUsersRepository
 {
+#if DEBUG
+    private const string _usersFileName = "users.Development.json";
+#else
     private const string _usersFileName = "users.json";
+#endif
     private const string _compressedFileName = $"{_usersFileName}.gz";
     private readonly IDictionary<long, VKBotUserEntity> _users;
 
