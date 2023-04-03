@@ -4,7 +4,7 @@ internal class KickCommand : AuthenticatedCommandBase, IVKBotCommand
 {
     private readonly long _chatId;
 
-    public KickCommand(IConfiguration configuration, long chatID) : base(configuration)
+    public KickCommand(VKConfiguration configuration, long chatID) : base(configuration)
     {
         _chatId = chatID;
     }

@@ -1,8 +1,22 @@
-﻿// Configure services.
+﻿// Loading secrets work-around using a second temporary configuration.
+var configuration = new ConfigurationBuilder()
+                .AddUserSecrets<VKConfiguration>()
+                .Build();
+
+var services = new ServiceCollection()
+    .Configure<VKConfiguration>(configuration.GetSection(nameof(VKConfiguration)))
+    .AddOptions()
+    .BuildServiceProvider();
+
+var myConf = services.GetService<IOptions<VKConfiguration>>()?.Value ?? throw new Exception("Secrets not loaded...");
+
+// Configure services.
 var builder = Host.CreateDefaultBuilder(args);
 
 builder.ConfigureServices((context, services) =>
 {
+    services.AddSingleton(myConf);
+
     services.AddLogging(logging =>
     {
         logging.ClearProviders();
@@ -19,22 +33,21 @@ builder.ConfigureServices((context, services) =>
 
     services.AddSingleton<ITelegramBotClient, TelegramBotClient>(_ =>
     {
-        return new(context.Configuration["TelegramBotToken"] ?? string.Empty);
+        return new(myConf.TelegramBotToken);
     });
 
-    services.AddFluentEmail(context.Configuration["Email:From"])
+    services.AddFluentEmail(myConf.Email.From, "Vasily Kengele")
         .AddSmtpSender(new SmtpClient
         {
-            Host = context.Configuration["Email:Smtp:Host"] ?? string.Empty,
-            Port = Convert.ToInt32(context.Configuration["Email:Smtp:Port"]),
+            Host = myConf.Email.Smtp.Host,
+            Port = myConf.Email.Smtp.Port,
             UseDefaultCredentials = false,
-            Credentials = new NetworkCredential(context.Configuration["Email:Smtp:Username"],
-                                                context.Configuration["Email:Smtp:Password"])
+            Credentials = new NetworkCredential(myConf.Email.Smtp.Username, myConf.Email.Smtp.Password)
         });
 
     services.AddOpenAIService(settings =>
     {
-        settings.ApiKey = context.Configuration["OpenAI:ApiKey"] ?? string.Empty;
+        settings.ApiKey = myConf.OpenAI.ApiKey;
     });
 });
 

@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace VasilyKengele.Commands;
+﻿namespace VasilyKengele.Commands;
 
 /// <summary>
 /// Loads and presents stored current user info from the repository.

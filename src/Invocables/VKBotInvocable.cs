@@ -31,14 +31,14 @@ public class VKBotInvocable : IInvocable
                           VKBotUsersRepository usersRepository,
                           ILoggerAdapter loggerAdapter,
                           IFluentEmailFactory fluentEmailFactory,
-                          IConfiguration configuration,
+                          VKConfiguration configuration,
                           IOpenAIService openAIService)
     {
-        if (!string.IsNullOrWhiteSpace(configuration["Email:From"]))
+        if (configuration.Email.Enabled)
         {
             _fluentEmailFactory = fluentEmailFactory;
         }
-        if (Convert.ToBoolean(configuration["OpenAI:Enabled"]))
+        if (configuration.OpenAI.Enabled)
         {
             _openAIService = openAIService;
         }

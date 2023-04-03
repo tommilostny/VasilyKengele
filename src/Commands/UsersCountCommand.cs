@@ -7,7 +7,7 @@
 /// <remarks>Command string: <see cref="IVKBotCommand.UsersCount"/></remarks>
 public class UsersCountCommand : AuthenticatedCommandBase, IVKBotCommand
 {
-    public UsersCountCommand(IConfiguration configuration) : base(configuration)
+    public UsersCountCommand(VKConfiguration configuration) : base(configuration)
     {
     }
 

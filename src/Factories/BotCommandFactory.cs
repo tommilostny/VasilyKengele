@@ -5,10 +5,10 @@ namespace VasilyKengele.Factories;
 /// </summary>
 public class BotCommandFactory
 {
-    private readonly IConfiguration _configuration;
+    private readonly VKConfiguration _configuration;
     private readonly ILoggerAdapter _logger;
 
-    public BotCommandFactory(IConfiguration configuration, ILoggerAdapter logger)
+    public BotCommandFactory(VKConfiguration configuration, ILoggerAdapter logger)
     {
         _configuration = configuration;
         _logger = logger;

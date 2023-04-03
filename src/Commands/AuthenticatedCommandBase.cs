@@ -8,8 +8,8 @@ public abstract class AuthenticatedCommandBase
 {
     protected long MainChatId { get; }
 
-    public AuthenticatedCommandBase(IConfiguration configuration)
+    public AuthenticatedCommandBase(VKConfiguration configuration)
     {
-        MainChatId = Convert.ToInt64(configuration["MainChatID"]);
+        MainChatId = Convert.ToInt64(configuration.MainChatID);
     }
 }

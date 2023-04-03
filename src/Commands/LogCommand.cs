@@ -10,7 +10,7 @@ public class LogCommand : AuthenticatedCommandBase, IVKBotCommand
     private readonly ILoggerAdapter _logger;
     private readonly int _count;
 
-    public LogCommand(IConfiguration configuration, ILoggerAdapter logger, int count) : base(configuration)
+    public LogCommand(VKConfiguration configuration, ILoggerAdapter logger, int count) : base(configuration)
     {
         _logger = logger;
         _count = count;

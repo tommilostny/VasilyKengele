@@ -7,17 +7,14 @@ public class VKTelegramBotHandler
 {
     private readonly VKBotUsersRepository _usersRepository;
     private readonly ILoggerAdapter _logger;
-    private readonly IConfiguration _configuration;
     private readonly BotCommandFactory _commandFactory;
 
     public VKTelegramBotHandler(VKBotUsersRepository usersRepository,
                                 ILoggerAdapter loggerAdapter,
-                                IConfiguration configuration,
                                 BotCommandFactory commandFactory)
     {
         _usersRepository = usersRepository;
         _logger = loggerAdapter;
-        _configuration = configuration;
         _commandFactory = commandFactory;
     }
 

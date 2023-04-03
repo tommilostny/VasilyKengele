@@ -6,7 +6,7 @@
 /// <remarks>Command string: <see cref="IVKBotCommand.Help"/></remarks>
 public class HelpCommand : AuthenticatedCommandBase, IVKBotCommand
 {
-    public HelpCommand(IConfiguration configuration) : base(configuration)
+    public HelpCommand(VKConfiguration configuration) : base(configuration)
     {
     }
 

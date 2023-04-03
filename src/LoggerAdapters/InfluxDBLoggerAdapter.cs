@@ -11,13 +11,13 @@ public class InfluxDBLoggerAdapter : ILoggerAdapter
     private readonly string? _bucket;
     private readonly string? _organization;
 
-    public InfluxDBLoggerAdapter(IConfiguration configuration, ILogger<InfluxDBLoggerAdapter> logger)
+    public InfluxDBLoggerAdapter(VKConfiguration configuration, ILogger<InfluxDBLoggerAdapter> logger)
     {
-        if (_enabled = Convert.ToBoolean(configuration["InfluxDB:LoggingToDbEnabled"]))
+        if (_enabled = Convert.ToBoolean(configuration.InfluxDB.LoggingToDbEnabled))
         {
-            _token = configuration["InfluxDB:Token"];
-            _bucket = configuration["InfluxDB:Bucket"];
-            _organization = configuration["InfluxDB:Organization"];
+            _token = configuration.InfluxDB.Token;
+            _bucket = configuration.InfluxDB.Bucket;
+            _organization = configuration.InfluxDB.Organization;
         }
         _logger = logger;
     }
