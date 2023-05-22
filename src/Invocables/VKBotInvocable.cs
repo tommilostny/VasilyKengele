@@ -6,45 +6,26 @@
 public class VKBotInvocable : IInvocable
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly VKBotUsersRepository _usersRepository;
+    private readonly UsersRepositoryService _usersRepository;
     private readonly ILoggerAdapter _logger;
-    private readonly IFluentEmailFactory? _fluentEmailFactory;
-    private readonly IOpenAIService? _openAIService;
-
-    private readonly Random _random = new();
-    private readonly string[] _adjectives = new[]
-    {
-        "Insightful", "Enlightening", "Capitalist", "Socialist",
-        "Intriguing", "Uplifting", "Provocative", "Crazy",
-        "Thought-provoking", "Stimulating", "Remarkable",
-        "Funny", "Sad", "Anarchist", "Rebelious", "Stupid",
-        "Compelling", "Stimulating", "Profound", "Informal",
-        "Affecting", "Moving", "Encouraging", "Pertinent",
-        "Irrelevant", "Diverting", "Innovative", "Idiotic",
-        "Gratifying", "Edifying", "Technical", "Programming"
-    };
+    private readonly VKOpenAIService _openAIService;
+    private readonly VKEmailService _emailService;
 
     /// <summary>
     /// Loads the Telegram bot token and stores a reference to the users repository.
     /// </summary>
     public VKBotInvocable(ITelegramBotClient botClient,
-                          VKBotUsersRepository usersRepository,
+                          UsersRepositoryService usersRepository,
                           ILoggerAdapter loggerAdapter,
-                          IFluentEmailFactory fluentEmailFactory,
                           VKConfiguration configuration,
-                          IOpenAIService openAIService)
+                          VKOpenAIService openAIService,
+                          VKEmailService emailService)
     {
-        if (configuration.Email.Enabled)
-        {
-            _fluentEmailFactory = fluentEmailFactory;
-        }
-        if (configuration.OpenAI.Enabled)
-        {
-            _openAIService = openAIService;
-        }
         _botClient = botClient;
         _usersRepository = usersRepository;
         _logger = loggerAdapter;
+        _openAIService = openAIService;
+        _emailService = emailService;
     }
 
     /// <summary>
@@ -54,7 +35,7 @@ public class VKBotInvocable : IInvocable
     public async Task Invoke()
     {
         // Initialize a lazy task that'll call OpenAI API if needed once for all users.
-        var quoteTask = new Lazy<Task<string>>(GenerateQuoteAsync);
+        var quoteTask = new Lazy<Task<string>>(_openAIService.GenerateQuoteAsync);
         var emailInfos = new List<(VKBotUserEntity, string, CancellationToken)>();
 
         // Create a wake up message for each user and send to all.
@@ -87,36 +68,10 @@ public class VKBotInvocable : IInvocable
             }
         });
         // Send e-mails to all users sequentially.
-        foreach (var (user, messageText, token) in emailInfos)
+        foreach (var (user, text, token) in emailInfos)
         {
-            await SendToEmailAsync(user, messageText, token);
+            await _emailService.SendToEmailAsync(user, text, token);
         }
-    }
-
-    /// <summary>
-    /// Task that calls Open AI API to generate a bird quote.
-    /// The API is not going to be called if no message is about to be sent
-    /// (i.e. there is no user in a time zone where it is currently 5 AM).
-    /// </summary>
-    private async Task<string> GenerateQuoteAsync()
-    {
-        if (_openAIService is not null)
-        {
-            var nextAdjective = _adjectives[_random.Next(0, _adjectives.Length)];
-        
-            var completion = await _openAIService.Completions.CreateCompletion(new()
-            {
-                Prompt = $"{nextAdjective} bird quote for the day {DateTime.UtcNow}:",
-                Model = Models.TextDavinciV3,
-                Temperature = 1.0f,
-                MaxTokens = 300
-            });
-            if (completion.Successful)
-            {
-                return completion.Choices.First().Text;
-            }
-        }
-        return string.Empty;
     }
 
     private async Task SendToTelegramBotAsync(VKBotUserEntity user, string messageText, CancellationToken token)
@@ -134,26 +89,5 @@ public class VKBotInvocable : IInvocable
         }
         while (tries < 3);
         _logger.Log(user.ChatId, "Error sending message to Telegram chat ({0}).", user.ChatId);
-    }
-
-    private async Task SendToEmailAsync(VKBotUserEntity user, string messageText, CancellationToken token)
-    {
-        //Send message to e-mail if user has it setup.
-        //Or skip if e-mail sending is not enabled in configuration.
-        if (user.Email is null || _fluentEmailFactory is null)
-            return;
-
-        var email = _fluentEmailFactory.Create()
-            .To(user.Email)
-            .Subject("Wake up with Vasily Kengele")
-            .Body(messageText);
-
-        var emailResult = await email.SendAsync(token);
-        if (emailResult.Successful)
-        {
-            _logger.Log(user.ChatId, "Sent e-mail '{0}' to {1}", messageText, user.Email);
-            return;
-        }
-        _logger.Log(user.ChatId, "Unable to send e-mail to {0}", user.Email);
     }
 }

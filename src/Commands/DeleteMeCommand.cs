@@ -11,7 +11,7 @@ public class DeleteMeCommand : IVKBotCommand
         if (await parameters.UsersRepository.RemoveAsync(parameters.User.ChatId))
         {
             await parameters.BotClient.SendTextMessageAsync(parameters.User.ChatId,
-                text: $"Goodbye, commrade {parameters.User.Name}!\nVasily Kengele is sad to see you leave.",
+                text: $"Goodbye, {parameters.User.Name}!\nVasily Kengele is sad to see you leave.",
                 cancellationToken: parameters.CancellationToken);
         }
     }

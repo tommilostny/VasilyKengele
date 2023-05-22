@@ -33,6 +33,6 @@ public interface IVKBotCommand
 /// <param name="User">Current user that called the command.</param>
 /// <param name="CancellationToken">Async task cancellation token.</param>
 public record CommandParameters(ITelegramBotClient BotClient,
-                                VKBotUsersRepository UsersRepository,
+                                UsersRepositoryService UsersRepository,
                                 VKBotUserEntity User,
                                 CancellationToken CancellationToken);

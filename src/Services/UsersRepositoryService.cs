@@ -1,9 +1,9 @@
-﻿namespace VasilyKengele.Repositories;
+﻿namespace VasilyKengele.Services;
 
 /// <summary>
 /// Class that is used to store a collection of user entites.
 /// </summary>
-public class VKBotUsersRepository
+public class UsersRepositoryService
 {
 #if DEBUG
     private const string _usersFileName = "users.Development.json";
@@ -17,7 +17,7 @@ public class VKBotUsersRepository
     /// Tries to load user entities collection serialized in the compressed JSON file.
     /// If it does not exist, the collection is initialized as empty and JSON file with empty list is created.
     /// </summary>
-    public VKBotUsersRepository()
+    public UsersRepositoryService()
     {
         if (System.IO.File.Exists(_compressedFileName))
         {

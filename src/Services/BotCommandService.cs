@@ -1,14 +1,14 @@
-namespace VasilyKengele.Factories;
+namespace VasilyKengele.Services;
 
 /// <summary>
 /// Used to create an instance of <see cref="IVKBotCommand"/> based on chat bot text message input.
 /// </summary>
-public class BotCommandFactory
+public class BotCommandService
 {
     private readonly VKConfiguration _configuration;
     private readonly ILoggerAdapter _logger;
 
-    public BotCommandFactory(VKConfiguration configuration, ILoggerAdapter logger)
+    public BotCommandService(VKConfiguration configuration, ILoggerAdapter logger)
     {
         _configuration = configuration;
         _logger = logger;

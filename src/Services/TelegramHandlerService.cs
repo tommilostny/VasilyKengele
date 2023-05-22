@@ -1,17 +1,17 @@
-﻿namespace VasilyKengele.Handlers;
+﻿namespace VasilyKengele.Services;
 
 /// <summary>
 /// Class that handles Telegram bot messages.
 /// </summary>
-public class VKTelegramBotHandler
+public class TelegramHandlerService
 {
-    private readonly VKBotUsersRepository _usersRepository;
+    private readonly UsersRepositoryService _usersRepository;
     private readonly ILoggerAdapter _logger;
-    private readonly BotCommandFactory _commandFactory;
+    private readonly BotCommandService _commandFactory;
 
-    public VKTelegramBotHandler(VKBotUsersRepository usersRepository,
-                                ILoggerAdapter loggerAdapter,
-                                BotCommandFactory commandFactory)
+    public TelegramHandlerService(UsersRepositoryService usersRepository,
+                                  ILoggerAdapter loggerAdapter,
+                                  BotCommandService commandFactory)
     {
         _usersRepository = usersRepository;
         _logger = loggerAdapter;
@@ -48,20 +48,19 @@ public class VKTelegramBotHandler
         var chatId = update.Message.Chat.Id;
         var username = update.Message.Chat.Username;
         var fullname = $"{update.Message.Chat.FirstName} {update.Message.Chat.LastName}";
-        (var user, var userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
-
+        var (user, userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
         try
         {
             var command = _commandFactory.MatchCommand(messageText);
             var parameters = new CommandParameters(botClient, _usersRepository, user, cancellationToken);
-
-            if (command is TimeCommand or EmailSubscribeCommand && !userExists)
+            switch ((command, userExists))
             {
-                await HandleUnknownUserAsync(botClient, user, cancellationToken);
-            }
-            else
-            {
-                await command.ExecuteAsync(parameters);
+                case (TimeCommand, false) or (EmailSubscribeCommand, false):
+                    await HandleUnknownUserAsync(botClient, user, cancellationToken);
+                    break;
+                default:
+                    await command.ExecuteAsync(parameters);
+                    break;
             }
         }
         catch
@@ -78,27 +77,24 @@ public class VKTelegramBotHandler
         var chatId = update.CallbackQuery!.From.Id;
         var username = update.CallbackQuery.From.Username;
         var fullname = $"{update.CallbackQuery.From.FirstName} {update.CallbackQuery.From.LastName}";
-        (var user, var userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
-
+        var (user, userExists) = await _usersRepository.GetAsync(chatId, fullname, username);
         var selectedHour = update.CallbackQuery.Data;
-        if (userExists)
+
+        switch ((userExists, selectedHour))
         {
-            //Path 1: User exists and hour number argument from button is given.
-            if (selectedHour is not null)
-            {
+            // User does not exist, prompt them to use /start to register first.
+            case (false, _):
+                await HandleUnknownUserAsync(botClient, user, cancellationToken);
+                break;
+            // Something went wrong and button data is null.
+            case (true, null):
+                await HandleUnknownCommandAsync(botClient, user.ChatId, cancellationToken);
+                break;
+            // User exists and hour number argument from button is given.
+            default:
                 var parameters = new CommandParameters(botClient, _usersRepository, user, cancellationToken);
                 await new TimeCommand(selectedHour).ExecuteAsync(parameters);
-            }
-            //Path 2: Something went wrong and button data is null.
-            else
-            {
-                await HandleUnknownCommandAsync(botClient, user.ChatId, cancellationToken);
-            }
-        }
-        //Path 3: User does not exist, prompt them to use /start to register first.
-        else
-        {
-            await HandleUnknownUserAsync(botClient, user, cancellationToken);
+                break;
         }
         _logger.Log(chatId, "Received /time response '{0}' message from {1} ({2}, {3}).", selectedHour, fullname, username, chatId);
     }

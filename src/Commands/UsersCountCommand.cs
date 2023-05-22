@@ -15,7 +15,7 @@ public class UsersCountCommand : AuthenticatedCommandBase, IVKBotCommand
     {
         var users = parameters.UsersRepository.GetAll();
         var wakingUp = users.Count(u => u.ReceiveWakeUps);
-        var notWakingUp = users.Count(u => !u.ReceiveWakeUps);
+        var notWakingUp = users.Count - wakingUp;
 
         var messageBuilder = new StringBuilder($"Right now <b>{wakingUp}</b> user")
             .Append(wakingUp == 1 ? " is" : "s are")

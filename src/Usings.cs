@@ -34,8 +34,7 @@ global using Telegram.Bot.Types.ReplyMarkups;
 
 global using VasilyKengele.Commands;
 global using VasilyKengele.Entities;
-global using VasilyKengele.Factories;
-global using VasilyKengele.Handlers;
+global using VasilyKengele.Extensions;
 global using VasilyKengele.Invocables;
 global using VasilyKengele.LoggerAdapters;
-global using VasilyKengele.Repositories;
+global using VasilyKengele.Services;
