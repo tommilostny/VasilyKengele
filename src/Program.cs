@@ -22,6 +22,7 @@ builder.ConfigureServices((context, services) =>
     services.AddSingleton<ILoggerAdapter, InfluxDBLoggerAdapter>();
     // Add Vasiliy Kengele services.
     services.AddSingleton<BotCommandService>();
+    services.AddSingleton<InternationalDaysService>();
     services.AddSingleton<TelegramHandlerService>();
     services.AddSingleton<UsersRepositoryService>();
     services.AddSingleton<VKOpenAIService>();

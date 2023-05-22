@@ -14,34 +14,31 @@ public class BotCommandService
         _logger = logger;
     }
 
-    public IVKBotCommand MatchCommand(string command)
+    public IVKBotCommand MatchCommand(string command) => command switch
     {
-        return command switch
-        {
-            IVKBotCommand.Start => new StartCommand(),
-            IVKBotCommand.Stop => new StopCommand(),
-            IVKBotCommand.UsersCount => new UsersCountCommand(_configuration),
-            IVKBotCommand.AboutMe => new AboutMeCommand(),
-            IVKBotCommand.DeleteMe => new DeleteMeCommand(),
-            IVKBotCommand.Time => new TimeCommand(),
-            IVKBotCommand.EmailUnsubscribe => new EmailUnsubscribeCommand(),
-            IVKBotCommand.Help => new HelpCommand(_configuration),
+        IVKBotCommand.Start => new StartCommand(),
+        IVKBotCommand.Stop => new StopCommand(),
+        IVKBotCommand.UsersCount => new UsersCountCommand(_configuration),
+        IVKBotCommand.AboutMe => new AboutMeCommand(),
+        IVKBotCommand.DeleteMe => new DeleteMeCommand(),
+        IVKBotCommand.Time => new TimeCommand(),
+        IVKBotCommand.EmailUnsubscribe => new EmailUnsubscribeCommand(),
+        IVKBotCommand.Help => new HelpCommand(_configuration),
 
-            var timeStr when command.StartsWith(IVKBotCommand.Time)
-                => new TimeCommand(CommandArg(timeStr)),
+        var timeStr when command.StartsWith(IVKBotCommand.Time)
+            => new TimeCommand(CommandArg(timeStr)),
 
-            var emailStr when command.StartsWith(IVKBotCommand.EmailSubscribe)
-                => new EmailSubscribeCommand(CommandArg(emailStr)),
+        var emailStr when command.StartsWith(IVKBotCommand.EmailSubscribe)
+            => new EmailSubscribeCommand(CommandArg(emailStr)),
 
-            var logStr when command.StartsWith(IVKBotCommand.Log)
-                => new LogCommand(_configuration, _logger, Convert.ToInt32(CommandArg(logStr))),
+        var logStr when command.StartsWith(IVKBotCommand.Log)
+            => new LogCommand(_configuration, _logger, Convert.ToInt32(CommandArg(logStr))),
 
-            var kickStr when command.StartsWith(IVKBotCommand.Kick)
-                => new KickCommand(_configuration, Convert.ToInt64(CommandArg(kickStr))),
+        var kickStr when command.StartsWith(IVKBotCommand.Kick)
+            => new KickCommand(_configuration, Convert.ToInt64(CommandArg(kickStr))),
 
-            _ => throw new InvalidOperationException()
-        };
-    }
+        _ => throw new InvalidOperationException()
+    };
 
     private static string CommandArg(string commandStr) => commandStr.Trim().Split(' ').Last();
 }
