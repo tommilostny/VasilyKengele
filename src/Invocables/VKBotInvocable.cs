@@ -54,7 +54,8 @@ public class VKBotInvocable : IInvocable
     public async Task Invoke()
     {
         // Initialize a lazy task that'll call OpenAI API if needed once for all users.
-        var quoteTask = new Lazy<Task<string>>(GenerateQuoteAsync); 
+        var quoteTask = new Lazy<Task<string>>(GenerateQuoteAsync);
+        var emailInfos = new List<(VKBotUserEntity, string, CancellationToken)>();
 
         // Create a wake up message for each user and send to all.
         await Parallel.ForEachAsync(_usersRepository.GetAll(), async (user, token) =>
@@ -78,8 +79,18 @@ public class VKBotInvocable : IInvocable
 
             var messageText = messageBuilder.ToString();
             await SendToTelegramBotAsync(user, messageText, token);
-            await SendToEmailAsync(user, messageText, token);
+
+            //Add e-mail info to the list, send it later.
+            lock (emailInfos)
+            {
+                emailInfos.Add((user, messageText, token));
+            }
         });
+        // Send e-mails to all users sequentially.
+        foreach (var (user, messageText, token) in emailInfos)
+        {
+            await SendToEmailAsync(user, messageText, token);
+        }
     }
 
     /// <summary>
