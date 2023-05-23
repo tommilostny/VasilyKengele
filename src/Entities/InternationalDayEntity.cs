@@ -2,6 +2,6 @@
 
 public record InternationalDayEntity(string Name)
 {
-    public DateOnly Day { get; set; }
+    public DateOnly Date { get; set; }
     public string? Link { get; set; }
 }

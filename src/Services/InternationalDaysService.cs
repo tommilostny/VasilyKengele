@@ -17,10 +17,28 @@ public class InternationalDaysService
             ?? throw new ArgumentNullException(nameof(_days));
     }
 
-    public InternationalDayEntity? GetInternationalDay(DateTime date) => _days.FirstOrDefault
-    (
-        x => x.Day.Day == date.Day && x.Day.Month == date.Month
-    );
+    public InternationalDayEntity? GetInternationalDay(DateTime date)
+    {
+        var i = _days.Count >> 1;
+        var interval = i;
+        while (interval > 0)
+        {
+            var entry = _days[i];
+            var monthsEq = date.Month == entry.Date.Month;
+            if (monthsEq && date.Day == entry.Date.Day)
+            {
+                return entry;
+            }
+            interval = Convert.ToInt32(Math.Round(interval / 2.0));
+            if (date.Month > entry.Date.Month || (monthsEq && date.Day > entry.Date.Day))
+            {
+                i += interval;
+                continue;
+            }
+            i -= interval;
+        }
+        return null;
+    }
 
     public InternationalDayEntity? GetTodaysInternationalDay() => GetInternationalDay(DateTime.Now);
 
@@ -55,7 +73,7 @@ public class InternationalDaysService
             {
                 daysIt.MoveNext();
                 var day = daysIt.Current;
-                day.Day = DateOnly.FromDateTime(DateTime.Parse(dateItem.Attributes["content"]));
+                day.Date = DateOnly.FromDateTime(DateTime.Parse(dateItem.Attributes["content"]));
             }
 
             System.IO.File.WriteAllText(_daysJsonFile, JsonConvert.SerializeObject(days));
