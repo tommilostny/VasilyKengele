@@ -26,7 +26,7 @@ public class VKEmailService
         var email = _fluentEmailFactory.Create()
             .To(user.Email)
             .Subject("Wake up with Vasily Kengele")
-            .Body(messageText);
+            .Body(messageText, isHtml: true);
 
         var emailResult = await email.SendAsync(token);
         if (emailResult.Successful)
