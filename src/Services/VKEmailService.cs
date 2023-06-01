@@ -28,12 +28,21 @@ public class VKEmailService
             .Subject("Wake up with Vasily Kengele")
             .Body(messageText, isHtml: true);
 
-        var emailResult = await email.SendAsync(token);
-        if (emailResult.Successful)
+        byte retries = 0;
+        do try
         {
-            _logger.Log(user.ChatId, "Sent e-mail '{0}' to {1}", messageText, user.Email);
-            return;
+            var emailResult = await email.SendAsync(token);
+            if (emailResult.Successful)
+            {
+                _logger.Log(user.ChatId, "Sent e-mail '{0}' to {1}", messageText, user.Email);
+                return;
+            }
         }
+        catch
+        {
+            retries++;
+        }
+        while (retries < 3);
         _logger.Log(user.ChatId, "Unable to send e-mail to {0}", user.Email);
     }
 }

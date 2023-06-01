@@ -94,7 +94,7 @@ public class VKBotInvocable : IInvocable
 
     private async Task SendToTelegramBotAsync(VKBotUserEntity user, string messageText, CancellationToken token)
     {
-        byte tries = 0;
+        byte retries = 0;
         do try
         {
             var message = await _botClient.SendTextMessageAsync(user.ChatId, messageText,
@@ -105,9 +105,9 @@ public class VKBotInvocable : IInvocable
         }
         catch
         {
-            tries++;
+            retries++;
         }
-        while (tries < 3);
+        while (retries < 3);
         _logger.Log(user.ChatId, "Error sending message to Telegram chat ({0}).", user.ChatId);
     }
 }
